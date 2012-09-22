@@ -25,7 +25,10 @@ import org.apache.maven.plugin.logging.Log;
 /**
  * Update design documents in CouchDB.
  *
- * This plugin updates design documents in CouchDB.
+ * Use this plugin to ensure the design documents in a CouchDb instance are in sync with those in the
+ * project resources. This plugin compares the documents found in CouchDB to those found in the source
+ * directory and if any differences exist it can either ignore them, fail the build, or bring CouchDB
+ * in sync with the source directory.
  *
  * @goal update
  *
@@ -36,26 +39,28 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     /**
      * The URL to the CouchDB instance.
      *
-     * Note that this is the server URL, it should not include a database name. If the database
+     * This is the server URL, it should not include a database name. If the database
      * requires authentication, the username and password should be provided in the URL.
      *
-     * @parameter
+     * @parameter expression="${designdocs.couchUrl}" default-value="http://localhost:5984"
      * @required
      */
     private URL couchUrl;
 
     /**
-     * The URL to the CouchDB instance.
+     * The directory where design documents are kept. This directory should contain a sub directory
+     * for every database in your couch instance. This sub directory, in turn, contains the design docs.
      *
-     * @parameter default="${basedir}/src/main/couchdb"
+     * @parameter expression="${designdocs.baseDir}" default-value="src/main/couchdb"
      * @required
      */
     private File baseDir;
 
     /**
-     * If true, create any missing databases. If false, break the build if a database is missing.
+     * If true, create any database that exist in the project sources, but not in the CouchDB instance. If
+     * set to false, missing databases will break the build unless the failOnError parameter is set to false.
      *
-     * @parameter default=false
+     * @parameter expression="${designdocs.createDbs}" default-value=false
      */
     private boolean createDbs;
 
@@ -68,18 +73,24 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
      *         is ignored. A warning is emitted.
      *
      * UPDATE  the _rev of the original document is copied into the local document and
-     *         the local document is then posted to Couch as an update.
+     *         the local document is then posted to Couch as an update. The document
+     *         history will show a single change.
      *
      * REPLACE the original document is deleted before the local document is uploaded.
+     *         The document history in CouchDB will show a deletion followed by an
+     *         insertion.
      *
      * FAIL    the build fails.
      *
-     * @parameter defalt="KEEP"
+     * @parameter expression="${designdocs.existingDocs}" default-value="UPDATE"
      */
     private String existingDocs;
 
     /**
-     * @parameter default=true
+     * If set to true, the build breaks when an error is encountered. If set to false, a
+     * warning is logged in such case.
+     *
+     * @parameter expression="${designdocs.failOnError}" default-value=true
      */
     private boolean failOnError;
 

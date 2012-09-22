@@ -29,7 +29,7 @@ public enum ExistingDocs {
 
     /**
      * Delete the original, then upload the local document as new.
-     */ //TODO does this make sense?
+     */
     REPLACE,
 
     /**
