@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.xebia.os.designdoc-maven-plugin</groupId>
+  <artifactId>designdoc-maven-plugin-example</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>CouchDB Design Doc Updater Plugin Example</name>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.xebia.os.designdoc-maven-plugin</groupId>
+        <artifactId>designdoc-maven-plugin</artifactId>
+        <version>0.1-SNAPSHOT</version>
+        <configuration>
+          <couchUrl>http://localhost:5984</couchUrl>
+          <baseDir>src/main/couchdb</baseDir>
+          <failOnError>true</failOnError>
+          <createDbs>true</createDbs>
+          <existingDocs>UPDATE</existingDocs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
