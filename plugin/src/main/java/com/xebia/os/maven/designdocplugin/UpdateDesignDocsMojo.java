@@ -17,6 +17,7 @@ package com.xebia.os.maven.designdocplugin;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -107,8 +108,18 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
             getLog().info("Detected '-Ddesigndocs.skip', skipping execution.");
             return;
         }
+        assertExistingDocsParameterValid();
         dumpConfig();
         getLog().info( "Hello, world." );
+    }
+
+    private void assertExistingDocsParameterValid() throws MojoExecutionException {
+        try {
+            ExistingDocs.valueOf(existingDocs);
+        } catch (IllegalArgumentException e) {
+            throw new MojoExecutionException("The value of the existingDocs parameter must be one of "
+                    + Arrays.toString(ExistingDocs.values()) + ", but was \"" + existingDocs + "\"");
+        }
     }
 
     private void dumpConfig() {
@@ -121,5 +132,29 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
             log.debug("  existingDocs: " + existingDocs);
             log.debug("  failOnError : " + failOnError);
         }
+    }
+
+    public void setCouchUrl(URL couchUrl) {
+        this.couchUrl = couchUrl;
+    }
+
+    public void setBaseDir(File baseDir) {
+        this.baseDir = baseDir;
+    }
+
+    public void setCreateDbs(boolean createDbs) {
+        this.createDbs = createDbs;
+    }
+
+    public void setExistingDocs(String existingDocs) {
+        this.existingDocs = existingDocs;
+    }
+
+    public void setFailOnError(boolean failOnError) {
+        this.failOnError = failOnError;
+    }
+
+    public void setSkip(boolean skip) {
+        this.skip = skip;
     }
 }
