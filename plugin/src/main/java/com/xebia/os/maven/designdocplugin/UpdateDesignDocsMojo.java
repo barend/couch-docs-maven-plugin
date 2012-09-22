@@ -16,12 +16,17 @@
 package com.xebia.os.maven.designdocplugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Locale;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+
+import com.google.common.collect.Multimap;
+import com.xebia.os.maven.designdocplugin.file.LocalDesignDocumentsSelector;
 
 /**
  * Update design documents in CouchDB.
@@ -102,6 +107,24 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
      */
     private boolean skip;
 
+    /**
+     * The include pattern to match design documents.
+     *
+     * Default: {@code ** /*.json} and {@code ** /*.js}.
+     *
+     * @parameter
+     */
+    private String[] includes = new String[] { "**/*.json", "**/*.js" };
+
+    /**
+     * The exclude pattern to match design documents.
+     *
+     * Default: null
+     *
+     * @parameter
+     */
+    private String[] excludes;
+
     public void execute() throws MojoExecutionException
     {
         if (skip) {
@@ -110,15 +133,27 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
         }
         assertExistingDocsParameterValid();
         dumpConfig();
-        getLog().info( "Hello, world." );
+        final Multimap<String, File> localDocuments = findLocalDesignDocuments();
+    }
+
+    private Multimap<String, File> findLocalDesignDocuments() throws MojoExecutionException {
+        final LocalDesignDocumentsSelector docsCollector = new LocalDesignDocumentsSelector(baseDir, getLog(), includes, excludes);
+        try {
+            return docsCollector.select();
+        } catch (IOException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
     }
 
     private void assertExistingDocsParameterValid() throws MojoExecutionException {
         try {
-            ExistingDocs.valueOf(existingDocs);
+            ExistingDocs.valueOf(existingDocs.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             throw new MojoExecutionException("The value of the existingDocs parameter must be one of "
-                    + Arrays.toString(ExistingDocs.values()) + ", but was \"" + existingDocs + "\"");
+                    + Arrays.toString(ExistingDocs.values()) + ", but was \"" + existingDocs + "\".");
+        } catch (NullPointerException e) {
+            throw new MojoExecutionException("The value of the existingDocs parameter must be one of "
+                    + Arrays.toString(ExistingDocs.values()) + ", but was null.");
         }
     }
 
