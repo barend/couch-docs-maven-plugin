@@ -1,4 +1,4 @@
-package com.xebia.os.maven.designdocplugin.file;
+package com.xebia.os.maven.designdocplugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import com.google.common.collect.Multimap;
+import com.xebia.os.maven.designdocplugin.LocalDesignDocumentsSelector;
 
 public class LocalDesignDocumentsSelectorTest {
 

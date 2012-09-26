@@ -26,7 +26,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
 import com.google.common.collect.Multimap;
-import com.xebia.os.maven.designdocplugin.file.LocalDesignDocumentsSelector;
 
 /**
  * Update design documents in CouchDB.
