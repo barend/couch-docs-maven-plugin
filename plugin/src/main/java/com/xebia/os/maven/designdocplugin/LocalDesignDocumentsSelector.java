@@ -20,7 +20,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.DirectoryScanner;
 
@@ -92,7 +91,7 @@ class LocalDesignDocumentsSelector {
      * @return the database name, with backslashes converted to slashes, if valid. Returns {@code null} if invalid.
      */
     public static String sanifyDatabaseName(String databaseName) {
-        String name = StringUtils.replaceChars(databaseName, '\\', '/');
+        String name = databaseName.replace('\\', '/');
         return (COUCH_DATABASENAME_WHITELIST.matcher(name).matches() ? name : null);
     }
 }
