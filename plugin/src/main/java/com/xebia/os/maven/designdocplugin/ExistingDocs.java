@@ -20,7 +20,7 @@ package com.xebia.os.maven.designdocplugin;
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-public enum ExistingDocs {
+enum ExistingDocs {
 
     /**
      * Keep the original, ignore the local document.

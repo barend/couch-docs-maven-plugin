@@ -32,7 +32,7 @@ import com.google.common.collect.Multimap;
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-public class LocalDesignDocumentsSelector {
+class LocalDesignDocumentsSelector {
     private static final Pattern COUCH_DATABASENAME_WHITELIST = Pattern.compile("[a-z0-9_$()+-/]+");
     private final File baseDir;
     private final Log log;
