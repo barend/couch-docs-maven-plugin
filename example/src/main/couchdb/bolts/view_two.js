@@ -1,5 +1,5 @@
 {
-   "_id": "_design/Demo",
+   "_id": "_design/view_two",
    "views": {
        "sample_view": {
            "map": "function(doc) { if(doc.include === 'true') {emit(doc._rev, null)} }"
