@@ -131,7 +131,15 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
         }
         assertExistingDocsParameterValid();
         dumpConfig();
-        final Multimap<String, File> localDocuments = findLocalDesignDocuments();
+        try {
+            final Multimap<String, File> localDocuments = findLocalDesignDocuments();
+            JsonDocumentProcessor processor = new JsonDocumentProcessor();
+            Progress progress = new Progress(failOnError, getLog());
+            CouchFunctions couch = new SimpleCouchFunctions();
+            new UpdateDesignDocs(processor, progress , couch, localDocuments, createDbs).execute();
+        } catch (RuntimeException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
     }
 
     private Multimap<String, File> findLocalDesignDocuments() throws MojoExecutionException {

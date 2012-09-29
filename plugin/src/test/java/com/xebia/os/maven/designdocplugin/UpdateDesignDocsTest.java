@@ -7,9 +7,13 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.maven.plugin.logging.Log;
+import org.codehaus.plexus.util.IOUtil;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -25,17 +29,22 @@ import com.google.common.collect.Multimap;
 public class UpdateDesignDocsTest {
 
     @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    private JsonDocumentProcessor documentProcessor = new JsonDocumentProcessor();
     @Mock private CouchFunctions couchFunctions;
     @Mock private Log log;
 
     private UpdateDesignDocs createInstance(boolean failOnError, Multimap<String, File> localDocs, boolean createDbs) {
-        return new UpdateDesignDocs(new Progress(failOnError, log), couchFunctions, localDocs, createDbs);
+        return new UpdateDesignDocs(documentProcessor, new Progress(failOnError, log), couchFunctions, localDocs, createDbs);
+    }
+
+    private UpdateDesignDocs createInstance(boolean failOnError, boolean createDbs) {
+        Multimap<String, File> empty = ImmutableMultimap.of();
+        return createInstance(failOnError, empty, createDbs);
     }
 
     @Test
     public void shouldNotAccessCouchDbForEmptyInput() {
-        Multimap<String, File> empty = ImmutableMultimap.of();
-        createInstance(true, empty, false).execute();
+        createInstance(true, false).execute();
         verifyZeroInteractions(couchFunctions);
     }
 
@@ -43,7 +52,7 @@ public class UpdateDesignDocsTest {
     public void shouldNotAttemptToCreateExistingDatabase() throws IOException {
         Multimap<String, File> one = ImmutableMultimap.of("sample", temporaryFolder.newFile());
         when(couchFunctions.isExistentDatabase("sample")).thenReturn(true);
-        createInstance(true, one, false).execute();
+        createInstance(true, one, false).ensureDatabaseExists("sample");
         verify(couchFunctions).isExistentDatabase("sample");
         verifyNoMoreInteractions(couchFunctions);
     }
@@ -53,7 +62,7 @@ public class UpdateDesignDocsTest {
         Multimap<String, File> one = ImmutableMultimap.of("sample", temporaryFolder.newFile());
         when(couchFunctions.isExistentDatabase("sample")).thenReturn(false);
         try {
-            createInstance(true, one, false).execute();
+            createInstance(true, one, false).ensureDatabaseExists("sample");
             fail("should have thrown an exception");
         } catch(Exception e) {
             verify(couchFunctions).isExistentDatabase("sample");
@@ -65,9 +74,36 @@ public class UpdateDesignDocsTest {
     public void shouldCreateNonExistentDatabaseIfConfiguredToDoSo() throws IOException {
         Multimap<String, File> one = ImmutableMultimap.of("sample", temporaryFolder.newFile());
         when(couchFunctions.isExistentDatabase("sample")).thenReturn(false);
-        createInstance(true, one, true).execute();
+        createInstance(true, one, true).ensureDatabaseExists("sample");
         verify(couchFunctions).isExistentDatabase("sample");
         verify(couchFunctions).createDatabase("sample");
         verifyNoMoreInteractions(couchFunctions);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void loadLocalFileEnsuresDocIsADesignDoc() throws IOException {
+        final String fileContents = "/not_a_design_doc.js";
+        final File input = newTempFile(fileContents);
+        createInstance(true, false).processLocalDesignDocument("database", input);
+    }
+
+    @Test
+    public void loadLocalFileEnsuresDocIsADesignDoc2() throws IOException {
+        final File input = newTempFile("/design_doc.js");
+        createInstance(true, false).processLocalDesignDocument("database", input);
+    }
+
+    private File newTempFile(final String contents) throws IOException, FileNotFoundException {
+        File result = temporaryFolder.newFile();
+        final InputStream dummyData = UpdateDesignDocsTest.class.getResourceAsStream(contents);
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(result);
+            IOUtil.copy(dummyData, fos);
+        } finally {
+            IOUtil.close(dummyData);
+            IOUtil.close(fos);
+        }
+        return result;
     }
 }

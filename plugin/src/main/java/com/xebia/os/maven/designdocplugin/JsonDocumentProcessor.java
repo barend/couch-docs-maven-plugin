@@ -15,6 +15,14 @@
 */
 package com.xebia.os.maven.designdocplugin;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.ObjectMapper;
+
 /**
  * Provides the necessary JSON manipulation.
  *
@@ -22,4 +30,26 @@ package com.xebia.os.maven.designdocplugin;
  */
 class JsonDocumentProcessor {
 
+    public JsonNode loadFromDisk(File diskFile) throws IOException {
+        final JsonFactory factory = new JsonFactory();
+        factory.setCodec(new ObjectMapper());
+        final JsonParser parser = factory.createJsonParser(diskFile);
+        final JsonNode document = parser.readValueAsTree();
+        return document;
+    }
+
+    /** Throws an exception if argument appears not to be a Design Document. */
+    public String assertThatDocumentIsADesignDocAndReturnId(JsonNode document) {
+        // All design documents have an _id...
+        final JsonNode idNode = document.findPath("_id");
+        if (!idNode.isTextual()) {
+            throw new RuntimeException("The document's _id node is missing or not a string value.");
+        }
+        // ...that starts with "_design/"
+        final String id = idNode.asText();
+        if (!id.startsWith("_design/")) {
+            throw new RuntimeException("The value \"" + id + "\" of the document's _id node does begin with \"_design/\".");
+        }
+        return id;
+    }
 }

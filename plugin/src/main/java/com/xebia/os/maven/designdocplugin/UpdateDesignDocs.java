@@ -16,9 +16,10 @@
 package com.xebia.os.maven.designdocplugin;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Map;
+import java.io.IOException;
+import org.codehaus.jackson.JsonNode;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 
@@ -29,16 +30,20 @@ import com.google.common.collect.Multimap;
  */
 class UpdateDesignDocs {
 
+    private final JsonDocumentProcessor documentProcessor;
     private final Progress progress;
     private final CouchFunctions couchFunctions;
     private final Multimap<String, File> localDesignDocuments;
     private final boolean createDbs;
 
-    public UpdateDesignDocs(Progress progress,
+    public UpdateDesignDocs(
+            JsonDocumentProcessor documentProcessor,
+            Progress progress,
             CouchFunctions couchFunctions,
             Multimap<String, File> localDesignDocuments,
             boolean createDbs) {
         super();
+        this.documentProcessor = Preconditions.checkNotNull(documentProcessor);
         this.progress = Preconditions.checkNotNull(progress);
         this.couchFunctions = Preconditions.checkNotNull(couchFunctions);
         this.localDesignDocuments = Preconditions.checkNotNull(localDesignDocuments);
@@ -46,23 +51,39 @@ class UpdateDesignDocs {
     }
 
     public void execute() {
-        final Map<String, Collection<File>> docs = localDesignDocuments.asMap();
-        for (Map.Entry<String, Collection<File>> entry : docs.entrySet()) {
-            final String databaseName = entry.getKey();
-            final Collection<File> documents = entry.getValue();
-            progress.debug("Processing database " + databaseName + " with " + documents.size() + " local design docs.");
+        for (final String databaseName : localDesignDocuments.keySet()) {
+            progress.info("Processing database \"" + databaseName + "\".");
             ensureDatabaseExists(databaseName);
+            for (File localDocument : localDesignDocuments.get(databaseName)) {
+                processLocalDesignDocument(databaseName, localDocument);
+            }
         }
     }
 
-    private void ensureDatabaseExists(String databaseName) {
+    @VisibleForTesting
+    void ensureDatabaseExists(String databaseName) {
         if (!couchFunctions.isExistentDatabase(databaseName)) {
+            progress.debug("Database \"" + databaseName + "\" is missing from CouchDB.");
             if (createDbs) {
-                progress.info("Creating database \"" + databaseName + "\" in Couch.");
+                progress.info("Creating database \"" + databaseName + "\" in CouchDB.");
                 couchFunctions.createDatabase(databaseName);
             } else {
                 progress.error("Database " + databaseName + " does not exist.");
             }
+        } else {
+            progress.debug("Database \"" + databaseName + "\" was found to exist in CouchDB.");
+        }
+    }
+
+    @VisibleForTesting
+    void processLocalDesignDocument(final String databaseName, final File file) {
+        progress.debug("Loading file " + file);
+        try {
+            final JsonNode localDocument = documentProcessor.loadFromDisk(file);
+            final String documentId = documentProcessor.assertThatDocumentIsADesignDocAndReturnId(localDocument);
+            progress.info("Processing design doucment \"" + documentId + "\".");
+        } catch (IOException e) {
+            progress.error("Could not load " + file + ": " + e.toString(), e);
         }
     }
 }
