@@ -3,7 +3,8 @@ package com.xebia.os.maven.designdocplugin;
 import org.apache.maven.plugin.logging.Log;
 
 /**
- * Handles reporting build progress and the failOnError behaviour.
+ * Handles reporting build progress and the {@code failOnError} behaviour. Isolates the non-Maven code from using the
+ * Maven logger.
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
