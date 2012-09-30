@@ -15,13 +15,15 @@
 */
 package com.xebia.os.maven.designdocplugin;
 
+import com.google.common.base.Optional;
+
 /**
  * Implements {@code CouchFunctions} using {@code HttpUrlConnection}. No fancy stuff like connection pooling or
  * keepalives here, move along.
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-public class CouchFunctionsImpl implements CouchFunctions {
+class CouchFunctionsImpl implements CouchFunctions {
 
     @Override
     public boolean isExistentDatabase(String databaseName) {
@@ -31,5 +33,19 @@ public class CouchFunctionsImpl implements CouchFunctions {
     @Override
     public void createDatabase(String databaseName) {
         // No-op
+    }
+
+    @Override
+    public Optional<RemoteDesignDocument> download(String databaseName, String id) {
+        return Optional.absent();
+    }
+
+    @Override
+    public void upload(String databaseName, LocalDesignDocument localDocument) {
+        // No-op
+    }
+
+    @Override
+    public void delete(String databaseName, RemoteDesignDocument remoteDocument) {
     }
 }

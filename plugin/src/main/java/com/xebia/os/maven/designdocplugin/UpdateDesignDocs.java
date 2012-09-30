@@ -16,7 +16,10 @@
 package com.xebia.os.maven.designdocplugin;
 
 import java.io.IOException;
-import com.google.common.annotations.VisibleForTesting;
+import java.util.Collection;
+import java.util.Set;
+
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 
@@ -45,29 +48,41 @@ class UpdateDesignDocs {
     }
 
     public void execute() {
-        for (final String databaseName : localDesignDocuments.keySet()) {
+        final Set<String> databases = localDesignDocuments.keySet();
+        for (final String databaseName : databases) {
             progress.info("Processing database \"" + databaseName + "\".");
-            if (ensureDatabaseExists(databaseName)) {
-                for (LocalDesignDocument localDocument : localDesignDocuments.get(databaseName)) {
-                    processLocalDesignDocument(databaseName, localDocument);
+            try {
+                if (ensureDatabaseExists(databaseName)) {
+                    final Collection<LocalDesignDocument> documents = localDesignDocuments.get(databaseName);
+                    for (LocalDesignDocument localDocument : documents) {
+                        processLocalDesignDocument(databaseName, localDocument);
+                    }
                 }
+            } catch (IOException e) {
+                progress.error("Could not ensure database " + databaseName + " exists.", e);
             }
         }
     }
 
-    @VisibleForTesting
-    boolean ensureDatabaseExists(String databaseName) {
+    /**
+     * @return {@code true} if processing for this database should continue after this method returns.
+     */
+    private boolean ensureDatabaseExists(String databaseName) throws IOException {
         final boolean exists = couchFunctions.isExistentDatabase(databaseName);
-        boolean result = false;
+        final boolean result;
 
-        if (!exists) {
+        if (exists) {
+            result = true;
+        } else {
             progress.debug("Database \"" + databaseName + "\" is missing from CouchDB.");
             switch (config.unknownDatabases) {
             case FAIL:
-                progress.error("Database " + databaseName + " does not exist.");
+                progress.error("Database \"" + databaseName + "\" does not exist.");
+                result = false;
                 break;
             case SKIP:
-                progress.warn("Database " + databaseName + " does not exist. Skipping.");
+                progress.info("Database \"" + databaseName + "\" does not exist. Skipping.");
+                result = false;
                 break;
             case CREATE:
                 progress.info("Creating database \"" + databaseName + "\" in CouchDB.");
@@ -75,32 +90,81 @@ class UpdateDesignDocs {
                 result = true;
                 break;
             default:
-                throw new AssertionError("Unreachable switch clause.");
+                throw new AssertionError("Unreachable case clause is reached.");
             }
         }
         return result;
     }
 
-    @VisibleForTesting
-    void processLocalDesignDocument(final String databaseName, final LocalDesignDocument document) {
-        progress.debug("Loading file " + document);
+    private void processLocalDesignDocument(final String databaseName, final LocalDesignDocument localDocument) {
+        progress.debug("Loading file " + localDocument);
         try {
-            document.load();
-            final String documentId = document.getId();
+            localDocument.load();
+            final String documentId = localDocument.getId();
             progress.info("Processing design doucment \"" + documentId + "\".");
 
-            if (document.getRev().isPresent()) {
-                progress.warn(document + " contains a _rev field; this will be ignored or overwritten.");
-            }
-
-            // Load remote document
-
-            // Check conflict behaviour, modify local _rev if needed
-
-            // Upload local document
-
         } catch (IOException e) {
-            progress.error("Could not load " + document + ": " + e.toString(), e);
+            progress.error("Could not load " + localDocument + ": " + e.toString(), e);
         }
+
+        if (localDocument.getRev().isPresent()) {
+            progress.warn(localDocument + " contains a _rev field; this will be ignored or overwritten.");
+        }
+
+        Optional<RemoteDesignDocument> remoteDocument;
+        try {
+            remoteDocument = couchFunctions.download(databaseName, localDocument.getId());
+        } catch (IOException e) {
+            progress.error("Could not load remote document " + localDocument.getId() + " from database " + databaseName, e);
+
+            // If we reach this line then "skip errors" is set. Return from the method to continue processing the next local document.
+            return;
+        }
+
+        try {
+            if (remoteDocument.isPresent()) {
+                if (resolveConflict(databaseName, localDocument, remoteDocument.get())) {
+                    couchFunctions.upload(databaseName, localDocument);
+                }
+            } else {
+                couchFunctions.upload(databaseName, localDocument);
+            }
+        } catch (IOException e) {
+            progress.error("Could not upload document " + localDocument + " to CouchDB", e);
+        }
+    }
+
+
+    /**
+     * @return {@code true} if {@code localDocument} should be uploaded after this method returns.
+     */
+    private boolean resolveConflict(String databaseName, LocalDesignDocument localDocument, RemoteDesignDocument remoteDocument) throws IOException {
+        Preconditions.checkArgument(localDocument.getId().equals(remoteDocument.getId()));
+        final boolean result;
+
+        switch (config.existingDocs) {
+        case KEEP:
+            progress.info("Keeping existing document \"" + localDocument.getId() + "\" in database \"" + databaseName + "\"");
+            result = false;
+            break;
+        case REPLACE:
+            progress.info("Deleting existing document \"" + localDocument.getId() + "\" from database \"" + databaseName + "\"");
+            couchFunctions.delete(databaseName, remoteDocument);
+            result = true;
+            break;
+        case UPDATE:
+            progress.info("Merging remote revision into local document \"" + localDocument.getId() + "\" from database \"" + databaseName + "\"");
+            localDocument.setRev(remoteDocument.getRev());
+            result = true;
+            break;
+        case FAIL:
+            progress.error("Document \"" + localDocument.getId() + "\" already exists in database \"" + databaseName + "\"");
+            result = false;
+            break;
+        default:
+            throw new AssertionError("Unreachable case clause is reached.");
+        }
+
+        return result;
     }
 }

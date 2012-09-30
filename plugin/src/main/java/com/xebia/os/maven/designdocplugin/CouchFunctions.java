@@ -15,12 +15,19 @@
 */
 package com.xebia.os.maven.designdocplugin;
 
+import java.io.IOException;
+
+import com.google.common.base.Optional;
+
 /**
  * Abstracts CouchDB access functions to aid testability.
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
 interface CouchFunctions {
-    boolean isExistentDatabase(String databaseName);
-    void createDatabase(String databaseName);
+    boolean isExistentDatabase(String databaseName) throws IOException;
+    void createDatabase(String databaseName) throws IOException;
+    Optional<RemoteDesignDocument> download(String databaseName, String id) throws IOException;
+    void upload(String databaseName, LocalDesignDocument localDocument) throws IOException;
+    void delete(String databaseName, RemoteDesignDocument remoteDocument) throws IOException;
 }

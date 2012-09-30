@@ -15,7 +15,6 @@
 */
 package com.xebia.os.maven.designdocplugin;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.codehaus.jackson.JsonFactory;
@@ -23,34 +22,25 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+
 import com.google.common.base.Preconditions;
 
 /**
- * Implements handling of the JSON files in the local file system.
+ * Implements handling of JSON for documents obtained from CouchDB.
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-class LocalDesignDocument {
-    private final File file;
-    private final JsonFactory jsonFactory;
+class RemoteDesignDocument {
+
     private ObjectNode jsonRootNode;
 
-    public LocalDesignDocument(File file) {
-        this.file = Preconditions.checkNotNull(file);
-        jsonFactory = new JsonFactory();
+    public RemoteDesignDocument(byte[] data) throws IOException, DocumentValidationException {
+        Preconditions.checkNotNull(data, "data argument cannot be null");
+        JsonFactory jsonFactory = new JsonFactory();
         jsonFactory.setCodec(new ObjectMapper());
-    }
 
-    @VisibleForTesting
-    File getFile() {
-        return file;
-    }
-
-    public void load() throws IOException, DocumentValidationException {
-        final JsonParser parser = jsonFactory.createJsonParser(file);
-        JsonNode parsed = parser.readValueAsTree();
+        final JsonParser parser = jsonFactory.createJsonParser(data);
+        final JsonNode parsed = parser.readValueAsTree();
 
         if (!parsed.isObject()) {
             throw new DocumentValidationException("The root of the JSON document must be an object node.");
@@ -72,36 +62,16 @@ class LocalDesignDocument {
         jsonRootNode = rootNode;
     }
 
-    public boolean isLoaded() {
-        return null != jsonRootNode;
-    }
-
     public String getId() {
-        Preconditions.checkState(isLoaded(), "Document was not loaded, or loading failed.");
         return jsonRootNode.get("_id").asText();
     }
 
-    public Optional<String> getRev() {
-        Preconditions.checkState(isLoaded(), "Document was not loaded, or loading failed.");
-        JsonNode revNode = jsonRootNode.findPath("_rev");
-        if (revNode.isMissingNode()) {
-            return Optional.absent();
-        }
-        return Optional.of(revNode.asText());
-    }
-
-    public void setRev(String rev) {
-        Preconditions.checkState(isLoaded(), "Document was not loaded, or loading failed.");
-        jsonRootNode.put("_rev", rev);
+    public String getRev() {
+        return jsonRootNode.get("_rev").asText();
     }
 
     @Override
     public String toString() {
-        String result = "LocalDesignDocument[ " + file;
-        if (isLoaded()) {
-            result += " , " + getId();
-        }
-        result += " ]";
-        return result;
+        return "RemoteDesignDocument[ " + getId() + " ]";
     }
 }

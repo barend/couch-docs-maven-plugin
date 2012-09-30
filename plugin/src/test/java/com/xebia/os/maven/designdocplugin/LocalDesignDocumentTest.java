@@ -37,8 +37,7 @@ public class LocalDesignDocumentTest {
 
     @Test(expected = DocumentValidationException.class)
     public void loadShouldEnsureDocIsADesignDoc() throws IOException {
-        final String fileContents = "/not_a_design_doc.js";
-        final File input = newTempFile(fileContents);
+        final File input = newTempFile("/not_a_design_doc.js");
         final LocalDesignDocument ldd = new LocalDesignDocument(input);
         ldd.load();
     }
@@ -54,9 +53,9 @@ public class LocalDesignDocumentTest {
         assertFalse(ldd.getRev().isPresent());
     }
 
-    private File newTempFile(final String contents) throws IOException, FileNotFoundException {
+    private File newTempFile(final String source) throws IOException, FileNotFoundException {
         File result = temporaryFolder.newFile();
-        final InputStream dummyData = UpdateDesignDocsTest.class.getResourceAsStream(contents);
+        final InputStream dummyData = UpdateDesignDocsTest.class.getResourceAsStream(source);
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(result);

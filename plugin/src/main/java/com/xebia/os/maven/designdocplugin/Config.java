@@ -31,8 +31,12 @@ class Config {
     public final UnknownDatabases unknownDatabases;
 
     public Config(String existingDocs, String unknownDatabases) {
-        this.existingDocs = ExistingDocs.parse(existingDocs);
-        this.unknownDatabases = UnknownDatabases.parse(unknownDatabases);
+        this(ExistingDocs.parse(existingDocs), UnknownDatabases.parse(unknownDatabases));
+    }
+
+    public Config(ExistingDocs existingDocs, UnknownDatabases unknownDatabases) {
+        this.existingDocs = existingDocs;
+        this.unknownDatabases = unknownDatabases;
     }
 
     /**
