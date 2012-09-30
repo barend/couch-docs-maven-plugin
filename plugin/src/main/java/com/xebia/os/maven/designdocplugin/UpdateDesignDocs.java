@@ -27,21 +27,21 @@ import com.google.common.collect.Multimap;
  */
 class UpdateDesignDocs {
 
+    private final Config config;
     private final Progress progress;
     private final CouchFunctions couchFunctions;
     private final Multimap<String, LocalDesignDocument> localDesignDocuments;
-    private final boolean createDbs;
 
     public UpdateDesignDocs(
+            Config config,
             Progress progress,
             CouchFunctions couchFunctions,
-            Multimap<String, LocalDesignDocument> localDesignDocuments,
-            boolean createDbs) {
+            Multimap<String, LocalDesignDocument> localDesignDocuments) {
         super();
+        this.config = Preconditions.checkNotNull(config);
         this.progress = Preconditions.checkNotNull(progress);
         this.couchFunctions = Preconditions.checkNotNull(couchFunctions);
         this.localDesignDocuments = Preconditions.checkNotNull(localDesignDocuments);
-        this.createDbs = createDbs;
     }
 
     public void execute() {
@@ -58,7 +58,7 @@ class UpdateDesignDocs {
     void ensureDatabaseExists(String databaseName) {
         if (!couchFunctions.isExistentDatabase(databaseName)) {
             progress.debug("Database \"" + databaseName + "\" is missing from CouchDB.");
-            if (createDbs) {
+            if (config.createDbs) {
                 progress.info("Creating database \"" + databaseName + "\" in CouchDB.");
                 couchFunctions.createDatabase(databaseName);
             } else {

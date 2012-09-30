@@ -48,7 +48,9 @@ public class UpdateDesignDocsTest {
     @Mock private Log log;
 
     private UpdateDesignDocs createInstance(boolean failOnError, Multimap<String, LocalDesignDocument> localDocs, boolean createDbs) {
-        return new UpdateDesignDocs(new Progress(failOnError, log), couchFunctions, localDocs, createDbs);
+        final Config config = new Config("UPDATE", createDbs);
+        final Progress progress = new Progress(failOnError, log);
+        return new UpdateDesignDocs(config, progress, couchFunctions, localDocs);
     }
 
     private UpdateDesignDocs createInstance(boolean failOnError, boolean createDbs) {

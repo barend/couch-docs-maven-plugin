@@ -133,9 +133,10 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
         dumpConfig();
         try {
             final Multimap<String, LocalDesignDocument> localDocuments = findLocalDesignDocuments();
+            Config config = new Config(existingDocs, createDbs);
             Progress progress = new Progress(failOnError, getLog());
             CouchFunctions couch = new SimpleCouchFunctions();
-            new UpdateDesignDocs(progress , couch, localDocuments, createDbs).execute();
+            new UpdateDesignDocs(config, progress, couch, localDocuments).execute();
         } catch (RuntimeException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
@@ -152,13 +153,13 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
 
     private void assertExistingDocsParameterValid() throws MojoExecutionException {
         try {
-            ExistingDocs.valueOf(existingDocs.toUpperCase(Locale.ROOT));
+            Config.ExistingDocs.valueOf(existingDocs.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             throw new MojoExecutionException("The value of the existingDocs parameter must be one of "
-                    + Arrays.toString(ExistingDocs.values()) + ", but was \"" + existingDocs + "\".");
+                    + Arrays.toString(Config.ExistingDocs.values()) + ", but was \"" + existingDocs + "\".");
         } catch (NullPointerException e) {
             throw new MojoExecutionException("The value of the existingDocs parameter must be one of "
-                    + Arrays.toString(ExistingDocs.values()) + ", but was null.");
+                    + Arrays.toString(Config.ExistingDocs.values()) + ", but was null.");
         }
     }
 
