@@ -41,8 +41,8 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     /**
      * The URL to the CouchDB instance.
      *
-     * This is the server URL, it should not include a database name. If the database
-     * requires authentication, the username and password should be provided in the URL.
+     * <p>This is the server URL, it should not include a database name. If the database
+     * requires authentication, the username and password should be provided in the URL.</p>
      *
      * @parameter expression="${designdocs.couchUrl}" default-value="http://localhost:5984"
      * @required
@@ -61,13 +61,17 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     /**
      * How to handle nonexistent databases (CREATE, SKIP, FAIL).
      *
-     * Valid options:
+     * <p>Valid options:</p>
+     * <dl>
+     * <dt>CREATE</dt>
+     * <dd>Create the database and upload the design docs.</dd>
      *
-     * CREATE  create the database and upload the design docs.
+     * <dt>SKIP</dt>
+     * <dd>Skip over this database, don't upload anything.</dd>
      *
-     * SKIP    skip over this database, don't upload anything.
-     *
-     * FAIL    the build fails.
+     * <dt>FAIL</dt>
+     * <dd>The build fails.</dd>
+     * </dl>
      *
      * @parameter expression="${designdocs.unknownDatabases}" default-value="CREATE"
      */
@@ -76,20 +80,24 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     /**
      * How to handle existing documents (KEEP, UPDATE, REPLACE, FAIL).
      *
-     * Valid options:
+     * <p>Valid options:</p>
+     * <dl>
+     * <dt>KEEP<dt>
+     * <dd>The original document is kept in CouchDB unmodified. The local document
+     * is ignored. A warning is emitted.</dd>
      *
-     * KEEP    the original document is kept in CouchDB unmodified. The local document
-     *         is ignored. A warning is emitted.
+     * <dt>UPDATE</dt>
+     * <dd>The _rev of the original document is copied into the local document and
+     * the local document is then posted to Couch as an update. The document
+     * history will show a single change.</dd>
      *
-     * UPDATE  the _rev of the original document is copied into the local document and
-     *         the local document is then posted to Couch as an update. The document
-     *         history will show a single change.
+     * <dt>REPLACE</dt>
+     * <dd>The original document is deleted before the local document is uploaded.
+     * The document history in CouchDB will show a deletion followed by an insertion.</dd>
      *
-     * REPLACE the original document is deleted before the local document is uploaded.
-     *         The document history in CouchDB will show a deletion followed by an
-     *         insertion.
-     *
-     * FAIL    the build fails.
+     * <dt>FAIL</dt>
+     * <dd>The build fails.</dd>
+     * </dl>
      *
      * @parameter expression="${designdocs.existingDocs}" default-value="UPDATE"
      */
@@ -113,7 +121,7 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     /**
      * The include pattern to match design documents.
      *
-     * Default: {@code ** /*.json} and {@code ** /*.js}.
+     * <p>Default: {@code ** /*.json} and {@code ** /*.js}.</p>
      *
      * @parameter
      */
@@ -122,7 +130,7 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     /**
      * The exclude pattern to match design documents.
      *
-     * Default: null
+     * <p>Default: null</p>
      *
      * @parameter
      */
