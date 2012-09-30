@@ -165,7 +165,7 @@ public class UpdateDesignDocsTest {
 
         verify(couchFunctions).isExistentDatabase("database");
         verify(couchFunctions).download("database", "_design/Demo");
-        assertThat(localDoc.getRev().get(), is(equalTo(remoteDoc.getRev())));
+        assertThat(localDoc.getRev().get(), is(equalTo(remoteDoc.getRev().get())));
         verify(couchFunctions).upload("database", localDoc);
         verifyNoMoreInteractions(couchFunctions);
     }

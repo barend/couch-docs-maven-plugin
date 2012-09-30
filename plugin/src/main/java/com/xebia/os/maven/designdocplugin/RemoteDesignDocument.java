@@ -17,12 +17,7 @@ package com.xebia.os.maven.designdocplugin;
 
 import java.io.IOException;
 
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
-
 import com.google.common.base.Preconditions;
 
 /**
@@ -30,44 +25,12 @@ import com.google.common.base.Preconditions;
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-class RemoteDesignDocument {
-
-    private ObjectNode jsonRootNode;
+class RemoteDesignDocument extends DesignDocument {
 
     public RemoteDesignDocument(byte[] data) throws IOException, DocumentValidationException {
         Preconditions.checkNotNull(data, "data argument cannot be null");
-        JsonFactory jsonFactory = new JsonFactory();
-        jsonFactory.setCodec(new ObjectMapper());
-
-        final JsonParser parser = jsonFactory.createJsonParser(data);
-        final JsonNode parsed = parser.readValueAsTree();
-
-        if (!parsed.isObject()) {
-            throw new DocumentValidationException("The root of the JSON document must be an object node.");
-        }
-
-        ObjectNode rootNode = ((ObjectNode) parsed);
-
-        // All design documents have an _id...
-        final JsonNode idNode = rootNode.findPath("_id");
-        if (!idNode.isTextual()) {
-            throw new DocumentValidationException("The document's _id node is missing or not a string value.");
-        }
-
-        // ...that starts with "_design/"
-        final String id = idNode.asText();
-        if (!id.startsWith("_design/")) {
-            throw new DocumentValidationException("The value \"" + id + "\" of the document's _id node does begin with \"_design/\".");
-        }
-        jsonRootNode = rootNode;
-    }
-
-    public String getId() {
-        return jsonRootNode.get("_id").asText();
-    }
-
-    public String getRev() {
-        return jsonRootNode.get("_rev").asText();
+        final JsonParser parser = getJsonFactory().createJsonParser(data);
+        initRootNode(parser);
     }
 
     @Override

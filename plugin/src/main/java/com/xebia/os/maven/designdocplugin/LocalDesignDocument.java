@@ -18,13 +18,8 @@ package com.xebia.os.maven.designdocplugin;
 import java.io.File;
 import java.io.IOException;
 
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 /**
@@ -32,15 +27,11 @@ import com.google.common.base.Preconditions;
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-class LocalDesignDocument {
+class LocalDesignDocument extends DesignDocument {
     private final File file;
-    private final JsonFactory jsonFactory;
-    private ObjectNode jsonRootNode;
 
     public LocalDesignDocument(File file) {
         this.file = Preconditions.checkNotNull(file);
-        jsonFactory = new JsonFactory();
-        jsonFactory.setCodec(new ObjectMapper());
     }
 
     @VisibleForTesting
@@ -49,50 +40,13 @@ class LocalDesignDocument {
     }
 
     public void load() throws IOException, DocumentValidationException {
-        final JsonParser parser = jsonFactory.createJsonParser(file);
-        JsonNode parsed = parser.readValueAsTree();
-
-        if (!parsed.isObject()) {
-            throw new DocumentValidationException("The root of the JSON document must be an object node.");
-        }
-
-        ObjectNode rootNode = ((ObjectNode) parsed);
-
-        // All design documents have an _id...
-        final JsonNode idNode = rootNode.findPath("_id");
-        if (!idNode.isTextual()) {
-            throw new DocumentValidationException("The document's _id node is missing or not a string value.");
-        }
-
-        // ...that starts with "_design/"
-        final String id = idNode.asText();
-        if (!id.startsWith("_design/")) {
-            throw new DocumentValidationException("The value \"" + id + "\" of the document's _id node does begin with \"_design/\".");
-        }
-        jsonRootNode = rootNode;
-    }
-
-    public boolean isLoaded() {
-        return null != jsonRootNode;
-    }
-
-    public String getId() {
-        Preconditions.checkState(isLoaded(), "Document was not loaded, or loading failed.");
-        return jsonRootNode.get("_id").asText();
-    }
-
-    public Optional<String> getRev() {
-        Preconditions.checkState(isLoaded(), "Document was not loaded, or loading failed.");
-        JsonNode revNode = jsonRootNode.findPath("_rev");
-        if (revNode.isMissingNode()) {
-            return Optional.absent();
-        }
-        return Optional.of(revNode.asText());
+        final JsonParser parser = getJsonFactory().createJsonParser(file);
+        initRootNode(parser);
     }
 
     public void setRev(String rev) {
         Preconditions.checkState(isLoaded(), "Document was not loaded, or loading failed.");
-        jsonRootNode.put("_rev", rev);
+        getRootNode().put("_rev", rev);
     }
 
     @Override

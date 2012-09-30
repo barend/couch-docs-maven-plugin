@@ -154,7 +154,7 @@ class UpdateDesignDocs {
             break;
         case UPDATE:
             progress.info("Merging remote revision into local document \"" + localDocument.getId() + "\" from database \"" + databaseName + "\"");
-            localDocument.setRev(remoteDocument.getRev());
+            localDocument.setRev(remoteDocument.getRev().get());
             result = true;
             break;
         case FAIL:
