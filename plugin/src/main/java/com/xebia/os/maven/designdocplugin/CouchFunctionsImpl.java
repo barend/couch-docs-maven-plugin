@@ -21,7 +21,7 @@ package com.xebia.os.maven.designdocplugin;
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-public class SimpleCouchFunctions implements CouchFunctions {
+public class CouchFunctionsImpl implements CouchFunctions {
 
     @Override
     public boolean isExistentDatabase(String databaseName) {

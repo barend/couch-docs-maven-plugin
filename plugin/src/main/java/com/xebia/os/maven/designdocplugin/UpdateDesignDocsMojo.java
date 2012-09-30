@@ -135,7 +135,7 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
             final Multimap<String, LocalDesignDocument> localDocuments = findLocalDesignDocuments();
             Config config = new Config(existingDocs, createDbs);
             Progress progress = new Progress(failOnError, getLog());
-            CouchFunctions couch = new SimpleCouchFunctions();
+            CouchFunctions couch = new CouchFunctionsImpl();
             new UpdateDesignDocs(config, progress, couch, localDocuments).execute();
         } catch (RuntimeException e) {
             throw new MojoExecutionException(e.getMessage(), e);
