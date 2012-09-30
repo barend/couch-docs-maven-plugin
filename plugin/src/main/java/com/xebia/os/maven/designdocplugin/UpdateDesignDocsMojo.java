@@ -167,11 +167,11 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
         final Log log = getLog();
         if (log.isDebugEnabled()) {
             log.debug("Using configuration:");
-            log.debug("  couchUrl    : " + couchUrl);
-            log.debug("  baseDir     : " + baseDir);
-            log.debug("  createDbs   : " + unknownDatabases);
-            log.debug("  existingDocs: " + existingDocs);
-            log.debug("  failOnError : " + failOnError);
+            log.debug("  couchUrl        : " + couchUrl);
+            log.debug("  baseDir         : " + baseDir);
+            log.debug("  unknownDatabases: " + unknownDatabases);
+            log.debug("  existingDocs    : " + existingDocs);
+            log.debug("  failOnError     : " + failOnError);
         }
     }
 
