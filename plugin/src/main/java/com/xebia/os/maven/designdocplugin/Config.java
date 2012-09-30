@@ -18,6 +18,8 @@ package com.xebia.os.maven.designdocplugin;
 import java.util.Arrays;
 import java.util.Locale;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Encapsulates the plugin configuration.
  *
@@ -64,8 +66,9 @@ class Config {
          */
         static ExistingDocs parse(String existingDocs) {
             try {
+                Preconditions.checkNotNull(existingDocs);
                 return ExistingDocs.valueOf(existingDocs.toUpperCase(Locale.ROOT));
-            } catch (IllegalArgumentException e) {
+            } catch (Exception e) {
                 throw new IllegalArgumentException("The value \"" + existingDocs + "\" is not valid; it must be one of "
                         + Arrays.toString(Config.ExistingDocs.values()) + ".");
             }
