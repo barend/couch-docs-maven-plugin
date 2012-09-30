@@ -15,6 +15,7 @@
 */
 package com.xebia.os.maven.designdocplugin;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -28,7 +29,7 @@ class Config {
     public final boolean createDbs;
 
     public Config(String existingDocs, boolean createDbs) {
-        this.existingDocs = ExistingDocs.valueOf(existingDocs.toUpperCase(Locale.ROOT));
+        this.existingDocs = ExistingDocs.parse(existingDocs);
         this.createDbs = createDbs;
     }
 
@@ -57,5 +58,17 @@ class Config {
          * Fail the build.
          */
         FAIL;
+
+        /**
+         * Like {@link #valueOf(String)}, but with case insensitivity and a friendlier error message.
+         */
+        static ExistingDocs parse(String existingDocs) {
+            try {
+                return ExistingDocs.valueOf(existingDocs.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("The value \"" + existingDocs + "\" is not valid; it must be one of "
+                        + Arrays.toString(Config.ExistingDocs.values()) + ".");
+            }
+        }
     }
 }

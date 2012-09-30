@@ -18,8 +18,6 @@ package com.xebia.os.maven.designdocplugin;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Locale;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
@@ -129,7 +127,6 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
             getLog().info("Detected '-Ddesigndocs.skip', skipping execution.");
             return;
         }
-        assertExistingDocsParameterValid();
         dumpConfig();
         try {
             final Multimap<String, LocalDesignDocument> localDocuments = findLocalDesignDocuments();
@@ -148,18 +145,6 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
             return docsCollector.select();
         } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
-        }
-    }
-
-    private void assertExistingDocsParameterValid() throws MojoExecutionException {
-        try {
-            Config.ExistingDocs.valueOf(existingDocs.toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException e) {
-            throw new MojoExecutionException("The value of the existingDocs parameter must be one of "
-                    + Arrays.toString(Config.ExistingDocs.values()) + ", but was \"" + existingDocs + "\".");
-        } catch (NullPointerException e) {
-            throw new MojoExecutionException("The value of the existingDocs parameter must be one of "
-                    + Arrays.toString(Config.ExistingDocs.values()) + ", but was null.");
         }
     }
 
