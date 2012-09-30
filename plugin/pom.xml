@@ -39,9 +39,17 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
-      <version>[3.0,4.0)</version>
+      <version>3.0.4</version>
     </dependency>
     <dependency>
+      <!-- This is a transitive dependency of maven-plugin-api that we use
+           directly in the plugin code. If the maven-plugin-api dependency
+	   is changed, this version should be bumped accordingly. -->
+      <groupId>org.sonatype.sisu</groupId>
+      <artifactId>sisu-guava</artifactId>
+      <version>0.9.9</version>
+    </dependency>
+     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-core-asl</artifactId>
       <version>1.9.10</version>
