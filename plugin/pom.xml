@@ -2,8 +2,8 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.xebia.os.designdoc-maven-plugin</groupId>
-  <artifactId>designdoc-maven-plugin</artifactId>
+  <groupId>com.xebia.os.designdocs-maven-plugin</groupId>
+  <artifactId>designdocs-maven-plugin</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
