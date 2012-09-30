@@ -30,7 +30,7 @@
           <couchUrl>http://localhost:5984</couchUrl>
           <baseDir>src/main/couchdb</baseDir>
           <failOnError>true</failOnError>
-          <createDbs>true</createDbs>
+          <unknownDatabases>CREATE</unknownDatabases>
           <existingDocs>UPDATE</existingDocs>
         </configuration>
       </plugin>

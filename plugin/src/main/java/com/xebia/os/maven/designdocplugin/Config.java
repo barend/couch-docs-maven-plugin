@@ -28,11 +28,11 @@ import com.google.common.base.Preconditions;
 class Config {
 
     public final ExistingDocs existingDocs;
-    public final boolean createDbs;
+    public final UnknownDatabases unknownDatabases;
 
-    public Config(String existingDocs, boolean createDbs) {
+    public Config(String existingDocs, String unknownDatabases) {
         this.existingDocs = ExistingDocs.parse(existingDocs);
-        this.createDbs = createDbs;
+        this.unknownDatabases = UnknownDatabases.parse(unknownDatabases);
     }
 
     /**
@@ -64,13 +64,46 @@ class Config {
         /**
          * Like {@link #valueOf(String)}, but with case insensitivity and a friendlier error message.
          */
-        static ExistingDocs parse(String existingDocs) {
+        static ExistingDocs parse(String value) {
             try {
-                Preconditions.checkNotNull(existingDocs);
-                return ExistingDocs.valueOf(existingDocs.toUpperCase(Locale.ROOT));
+                Preconditions.checkNotNull(value);
+                return ExistingDocs.valueOf(value.toUpperCase(Locale.ROOT));
             } catch (Exception e) {
-                throw new IllegalArgumentException("The value \"" + existingDocs + "\" is not valid; it must be one of "
+                throw new IllegalArgumentException("The value \"" + value + "\" is not valid; it must be one of "
                         + Arrays.toString(Config.ExistingDocs.values()) + ".");
+            }
+        }
+    }
+
+    /**
+     * Indicates how to handle a database that's found in the documents dir but not on the server.
+     */
+    static enum UnknownDatabases {
+        /**
+         * Create any missing databases on the server.
+         */
+        CREATE,
+
+        /**
+         * Skip the database.
+         */
+        SKIP,
+
+        /**
+         * Fail the build.
+         */
+        FAIL;
+
+        /**
+         * Like {@link #valueOf(String)}, but with case insensitivity and a friendlier error message.
+         */
+        static UnknownDatabases parse(String value) {
+            try {
+                Preconditions.checkNotNull(value);
+                return UnknownDatabases.valueOf(value.toUpperCase(Locale.ROOT));
+            } catch (Exception e) {
+                throw new IllegalArgumentException("The value \"" + value + "\" is not valid; it must be one of "
+                        + Arrays.toString(Config.UnknownDatabases.values()) + ".");
             }
         }
     }

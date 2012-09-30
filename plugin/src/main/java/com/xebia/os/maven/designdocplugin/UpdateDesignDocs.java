@@ -47,26 +47,38 @@ class UpdateDesignDocs {
     public void execute() {
         for (final String databaseName : localDesignDocuments.keySet()) {
             progress.info("Processing database \"" + databaseName + "\".");
-            ensureDatabaseExists(databaseName);
-            for (LocalDesignDocument localDocument : localDesignDocuments.get(databaseName)) {
-                processLocalDesignDocument(databaseName, localDocument);
+            if (ensureDatabaseExists(databaseName)) {
+                for (LocalDesignDocument localDocument : localDesignDocuments.get(databaseName)) {
+                    processLocalDesignDocument(databaseName, localDocument);
+                }
             }
         }
     }
 
     @VisibleForTesting
-    void ensureDatabaseExists(String databaseName) {
-        if (!couchFunctions.isExistentDatabase(databaseName)) {
+    boolean ensureDatabaseExists(String databaseName) {
+        final boolean exists = couchFunctions.isExistentDatabase(databaseName);
+        boolean result = false;
+
+        if (!exists) {
             progress.debug("Database \"" + databaseName + "\" is missing from CouchDB.");
-            if (config.createDbs) {
+            switch (config.unknownDatabases) {
+            case FAIL:
+                progress.error("Database " + databaseName + " does not exist.");
+                break;
+            case SKIP:
+                progress.warn("Database " + databaseName + " does not exist. Skipping.");
+                break;
+            case CREATE:
                 progress.info("Creating database \"" + databaseName + "\" in CouchDB.");
                 couchFunctions.createDatabase(databaseName);
-            } else {
-                progress.error("Database " + databaseName + " does not exist.");
+                result = true;
+                break;
+            default:
+                throw new AssertionError("Unreachable switch clause.");
             }
-        } else {
-            progress.debug("Database \"" + databaseName + "\" was found to exist in CouchDB.");
         }
+        return result;
     }
 
     @VisibleForTesting

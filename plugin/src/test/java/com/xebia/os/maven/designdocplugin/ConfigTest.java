@@ -25,19 +25,46 @@ public class ConfigTest {
     @Test(expected = IllegalArgumentException.class)
     public void existingDocsParameterIsRequired() {
         String existingDocs = null;
-        new Config(existingDocs, false);
+        String unknownDatabases = "SKIP";
+        new Config(existingDocs, unknownDatabases);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void existingDocsParameterCannotBeBogus() {
         String existingDocs = "UPSERT"; // Whomever invented this term should be flogged.
-        new Config(existingDocs, false);
+        String unknownDatabases = "SKIP";
+        new Config(existingDocs, unknownDatabases);
     }
 
     @Test
     public void existingDocsParameterMatchesCaseInsensitively() {
         String existingDocs = "RePlAcE";
-        final Config config = new Config(existingDocs, false);
+        String unknownDatabases = "SKIP";
+        final Config config = new Config(existingDocs, unknownDatabases);
         assertEquals(Config.ExistingDocs.REPLACE, config.existingDocs);
+        assertEquals(Config.UnknownDatabases.SKIP, config.unknownDatabases);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void unknownDatabasesParameterIsRequired() {
+        String existingDocs = "UPDATE";
+        String unknownDatabases = null;
+        new Config(existingDocs, unknownDatabases);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void unknownDatabasesParameterCannotBeBogus() {
+        String existingDocs = "UPDATE";
+        String unknownDatabases = "WRONG";
+        new Config(existingDocs, unknownDatabases);
+    }
+
+    @Test
+    public void unknownDatabasesParameterMatchesCaseInsensitively() {
+        String existingDocs = "UPDATE";
+        String unknownDatabases = "FaiL";
+        final Config config = new Config(existingDocs, unknownDatabases);
+        assertEquals(Config.ExistingDocs.UPDATE, config.existingDocs);
+        assertEquals(Config.UnknownDatabases.FAIL, config.unknownDatabases);
     }
 }

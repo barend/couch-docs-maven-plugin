@@ -41,20 +41,20 @@ public class UpdateDesignDocsTest {
     @Mock private CouchFunctions couchFunctions;
     @Mock private Log log;
 
-    private UpdateDesignDocs createInstance(boolean failOnError, Multimap<String, LocalDesignDocument> localDocs, boolean createDbs) {
-        final Config config = new Config("UPDATE", createDbs);
+    private UpdateDesignDocs createInstance(boolean failOnError, Multimap<String, LocalDesignDocument> localDocs, Config.UnknownDatabases createDbs) {
+        final Config config = new Config("UPDATE", createDbs.toString());
         final Progress progress = new Progress(failOnError, log);
         return new UpdateDesignDocs(config, progress, couchFunctions, localDocs);
     }
 
-    private UpdateDesignDocs createInstance(boolean failOnError, boolean createDbs) {
+    private UpdateDesignDocs createInstance(boolean failOnError, Config.UnknownDatabases createDbs) {
         Multimap<String, LocalDesignDocument> empty = ImmutableMultimap.of();
         return createInstance(failOnError, empty, createDbs);
     }
 
     @Test
     public void shouldNotAccessCouchDbForEmptyInput() {
-        createInstance(true, false).execute();
+        createInstance(true, Config.UnknownDatabases.FAIL).execute();
         verifyZeroInteractions(couchFunctions);
     }
 
@@ -62,7 +62,7 @@ public class UpdateDesignDocsTest {
     public void shouldNotAttemptToCreateExistingDatabase() throws IOException {
         Multimap<String, LocalDesignDocument> one = ImmutableMultimap.of("sample", new LocalDesignDocument(temporaryFolder.newFile()));
         when(couchFunctions.isExistentDatabase("sample")).thenReturn(true);
-        createInstance(true, one, false).ensureDatabaseExists("sample");
+        createInstance(true, one, Config.UnknownDatabases.FAIL).ensureDatabaseExists("sample");
         verify(couchFunctions).isExistentDatabase("sample");
         verifyNoMoreInteractions(couchFunctions);
     }
@@ -72,7 +72,7 @@ public class UpdateDesignDocsTest {
         Multimap<String, LocalDesignDocument> one = ImmutableMultimap.of("sample", new LocalDesignDocument(temporaryFolder.newFile()));
         when(couchFunctions.isExistentDatabase("sample")).thenReturn(false);
         try {
-            createInstance(true, one, false).ensureDatabaseExists("sample");
+            createInstance(true, one, Config.UnknownDatabases.FAIL).ensureDatabaseExists("sample");
             fail("should have thrown an exception");
         } catch(Exception e) {
             verify(couchFunctions).isExistentDatabase("sample");
@@ -84,7 +84,7 @@ public class UpdateDesignDocsTest {
     public void shouldCreateNonExistentDatabaseIfConfiguredToDoSo() throws IOException {
         Multimap<String, LocalDesignDocument> one = ImmutableMultimap.of("sample", new LocalDesignDocument(temporaryFolder.newFile()));
         when(couchFunctions.isExistentDatabase("sample")).thenReturn(false);
-        createInstance(true, one, true).ensureDatabaseExists("sample");
+        createInstance(true, one, Config.UnknownDatabases.CREATE).ensureDatabaseExists("sample");
         verify(couchFunctions).isExistentDatabase("sample");
         verify(couchFunctions).createDatabase("sample");
         verifyNoMoreInteractions(couchFunctions);

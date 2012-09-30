@@ -59,12 +59,19 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     private File baseDir;
 
     /**
-     * If true, create any database that exist in the project sources, but not in the CouchDB instance. If
-     * set to false, missing databases will break the build unless the failOnError parameter is set to false.
+     * How to handle nonexistent databases (CREATE, SKIP, FAIL).
      *
-     * @parameter expression="${designdocs.createDbs}" default-value=false
+     * Valid options:
+     *
+     * CREATE  create the database and upload the design docs.
+     *
+     * SKIP    skip over this database, don't upload anything.
+     *
+     * FAIL    the build fails.
+     *
+     * @parameter expression="${designdocs.unknownDatabases}" default-value="CREATE"
      */
-    private boolean createDbs;
+    private String unknownDatabases;
 
     /**
      * How to handle existing documents (KEEP, UPDATE, REPLACE, FAIL).
@@ -130,7 +137,7 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
         dumpConfig();
         try {
             final Multimap<String, LocalDesignDocument> localDocuments = findLocalDesignDocuments();
-            Config config = new Config(existingDocs, createDbs);
+            Config config = new Config(existingDocs, unknownDatabases);
             Progress progress = new Progress(failOnError, getLog());
             CouchFunctions couch = new CouchFunctionsImpl();
             new UpdateDesignDocs(config, progress, couch, localDocuments).execute();
@@ -154,7 +161,7 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
             log.debug("Using configuration:");
             log.debug("  couchUrl    : " + couchUrl);
             log.debug("  baseDir     : " + baseDir);
-            log.debug("  createDbs   : " + createDbs);
+            log.debug("  createDbs   : " + unknownDatabases);
             log.debug("  existingDocs: " + existingDocs);
             log.debug("  failOnError : " + failOnError);
         }
@@ -168,8 +175,8 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
         this.baseDir = baseDir;
     }
 
-    public void setCreateDbs(boolean createDbs) {
-        this.createDbs = createDbs;
+    public void setUnknownDatabases(String unknownDatabases) {
+        this.unknownDatabases = unknownDatabases;
     }
 
     public void setExistingDocs(String existingDocs) {
