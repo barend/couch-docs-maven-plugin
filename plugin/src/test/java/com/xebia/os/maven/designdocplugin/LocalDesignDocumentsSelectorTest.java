@@ -27,12 +27,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
-import org.apache.maven.plugin.logging.SystemStreamLog;
+import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.IOUtil;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonatype.inject.Nullable;
 
 import com.google.common.base.Predicate;
@@ -40,10 +43,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.xebia.os.maven.designdocplugin.LocalDesignDocumentsSelector;
 
+@RunWith(MockitoJUnitRunner.class)
 public class LocalDesignDocumentsSelectorTest {
 
-    @Rule
-    public TemporaryFolder tempDir = new TemporaryFolder();
+    @Rule public TemporaryFolder tempDir = new TemporaryFolder();
+    @Mock private Log log;
     private ByteArrayInputStream jsonData;
 
     @Test
@@ -51,7 +55,7 @@ public class LocalDesignDocumentsSelectorTest {
         createTempFile("doc3.js");
         createTempFile("doc3.json");
 
-        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), new SystemStreamLog());
+        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), log);
         final Multimap<String, LocalDesignDocument> selected = collector.select();
         assertEquals("Should find no qualifying files.", 0, selected.size());
     }
@@ -61,7 +65,7 @@ public class LocalDesignDocumentsSelectorTest {
         final File d2doc1 = createTempFile("database/doc1.json");
         final File d2dud1 = createTempFile("database/readme.txt");
 
-        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), new SystemStreamLog());
+        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), log);
         final Multimap<String, LocalDesignDocument> selected = collector.select();
         assertEquals("Should find one qualifying file.", 1, selected.size());
         final Collection<LocalDesignDocument> docs = selected.get("database");
@@ -75,7 +79,7 @@ public class LocalDesignDocumentsSelectorTest {
         final File d1doc2 = createTempFile("database1/doc2.json");
         final File d2doc1 = createTempFile("database2/doc1.json");
 
-        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), new SystemStreamLog());
+        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), log);
         final Multimap<String, LocalDesignDocument> selected = collector.select();
         assertEquals("Should find three qualifying files.", 3, selected.size());
         final Collection<LocalDesignDocument> d1docs = selected.get("database1");
@@ -88,7 +92,7 @@ public class LocalDesignDocumentsSelectorTest {
     @Test
     public void shouldSupportSlashesInDbNames() throws IOException {
         final File d2doc1 = createTempFile("customers/japan/doc1.json");
-        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), new SystemStreamLog());
+        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), log);
         final Multimap<String, LocalDesignDocument> selected = collector.select();
         assertEquals("Should find one qualifying file.", 1, selected.size());
         final Collection<LocalDesignDocument> docs = selected.get("customers/japan");
@@ -98,7 +102,7 @@ public class LocalDesignDocumentsSelectorTest {
     @Test
     public void shouldAllowAllSupportedWeirdCharacters() throws IOException {
         final File d2doc1 = createTempFile("ha_$()+-000/doc1.json");
-        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), new SystemStreamLog());
+        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), log);
         final Multimap<String, LocalDesignDocument> selected = collector.select();
         assertEquals("Should find one qualifying file.", 1, selected.size());
         final Collection<LocalDesignDocument> docs = selected.get("ha_$()+-000");
@@ -108,7 +112,7 @@ public class LocalDesignDocumentsSelectorTest {
     @Test
     public void shouldRejectUppercaseInDbNames() throws IOException {
         createTempFile("DATABASE/doc1.json");
-        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), new SystemStreamLog());
+        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), log);
         final Multimap<String, LocalDesignDocument> selected = collector.select();
         assertEquals("Should find no qualifying files.", 0, selected.size());
     }
