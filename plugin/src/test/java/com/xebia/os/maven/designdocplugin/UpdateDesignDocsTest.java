@@ -21,14 +21,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.maven.plugin.logging.Log;
-import org.codehaus.plexus.util.IOUtil;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -94,32 +88,5 @@ public class UpdateDesignDocsTest {
         verify(couchFunctions).isExistentDatabase("sample");
         verify(couchFunctions).createDatabase("sample");
         verifyNoMoreInteractions(couchFunctions);
-    }
-
-    @Test(expected = DocumentValidationException.class)
-    public void loadLocalFileEnsuresDocIsADesignDoc() throws IOException {
-        final String fileContents = "/not_a_design_doc.js";
-        final File input = newTempFile(fileContents);
-        createInstance(true, false).processLocalDesignDocument("database", new LocalDesignDocument(input));
-    }
-
-    @Test
-    public void loadLocalFileEnsuresDocIsADesignDoc2() throws IOException {
-        final File input = newTempFile("/design_doc.js");
-        createInstance(true, false).processLocalDesignDocument("database", new LocalDesignDocument(input));
-    }
-
-    private File newTempFile(final String contents) throws IOException, FileNotFoundException {
-        File result = temporaryFolder.newFile();
-        final InputStream dummyData = UpdateDesignDocsTest.class.getResourceAsStream(contents);
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(result);
-            IOUtil.copy(dummyData, fos);
-        } finally {
-            IOUtil.close(dummyData);
-            IOUtil.close(fos);
-        }
-        return result;
     }
 }
