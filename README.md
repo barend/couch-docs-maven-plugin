@@ -22,5 +22,7 @@ obtain a copy of this license from the following url:
  * Detect design documents in CouchDB that aren't in the source code
    and offer to keep or delete them, or fail the build.
  * Take advantage of Maven 3's encrypted credential store.
+ * Remove the word "design" from pretty much everywhere because there's
+   no reason this plugin couldn't be used for non-design documents.
 
 [apache2]: http://www.apache.org/licenses/LICENSE-2.0
