@@ -77,6 +77,10 @@ class UpdateDesignDocs {
             final String documentId = document.getId();
             progress.info("Processing design doucment \"" + documentId + "\".");
 
+            if (document.getRev().isPresent()) {
+                progress.warn(document + " contains a _rev field; this will be ignored or overwritten.");
+            }
+
             // Load remote document
 
             // Check conflict behaviour, modify local _rev if needed

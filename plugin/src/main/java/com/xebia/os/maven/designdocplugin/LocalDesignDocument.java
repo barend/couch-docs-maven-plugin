@@ -83,4 +83,9 @@ class LocalDesignDocument {
         }
         return Optional.of(revNode.asText());
     }
+
+    @Override
+    public String toString() {
+        return "LocalDesignDocument[ " + file + " ]";
+    }
 }
