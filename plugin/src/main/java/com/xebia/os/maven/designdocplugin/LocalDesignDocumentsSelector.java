@@ -27,7 +27,8 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 
 /**
- *
+ * Finds the local files that should be processed as design documents. Relies on the directory scanner provided by
+ * Maven so include/exclude semantics match other Maven plugins.
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
@@ -53,11 +54,15 @@ class LocalDesignDocumentsSelector {
         this.excludes = excludes;
     }
 
-    public Multimap<String, File> select() throws IOException {
+    /**
+     * Finds the local design documents for processing.
+     * @return keys: database name, values: unloaded {@code LocalDesignDocument}s.
+     */
+    public Multimap<String, LocalDesignDocument> select() throws IOException {
         if (!baseDir.isDirectory() || !baseDir.canRead()) {
             throw new FileNotFoundException("The path " + baseDir.getPath() + " doesn't exist, is not a directory, or is not readable.");
         }
-        Multimap<String, File> result = LinkedListMultimap.create();
+        Multimap<String, LocalDesignDocument> result = LinkedListMultimap.create();
         DirectoryScanner scanner = new DirectoryScanner();
         scanner.addDefaultExcludes();
         scanner.setBasedir(baseDir);
@@ -70,7 +75,7 @@ class LocalDesignDocumentsSelector {
                 databaseName = sanifyDatabaseName(databaseName);
                 if (databaseName != null) {
                     log.debug("Found document " + file + " in database " + databaseName);
-                    result.put(databaseName, new File(baseDir, file));
+                    result.put(databaseName, new LocalDesignDocument(new File(baseDir, file)));
                 } else {
                     log.warn("Ignoring document " + file + " because its directory path contains characters that aren't valid in a Couch database name.");
                 }

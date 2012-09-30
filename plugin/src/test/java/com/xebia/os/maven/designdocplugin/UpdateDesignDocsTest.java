@@ -44,16 +44,15 @@ import com.google.common.collect.Multimap;
 public class UpdateDesignDocsTest {
 
     @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
-    private JsonDocumentProcessor documentProcessor = new JsonDocumentProcessor();
     @Mock private CouchFunctions couchFunctions;
     @Mock private Log log;
 
-    private UpdateDesignDocs createInstance(boolean failOnError, Multimap<String, File> localDocs, boolean createDbs) {
-        return new UpdateDesignDocs(documentProcessor, new Progress(failOnError, log), couchFunctions, localDocs, createDbs);
+    private UpdateDesignDocs createInstance(boolean failOnError, Multimap<String, LocalDesignDocument> localDocs, boolean createDbs) {
+        return new UpdateDesignDocs(new Progress(failOnError, log), couchFunctions, localDocs, createDbs);
     }
 
     private UpdateDesignDocs createInstance(boolean failOnError, boolean createDbs) {
-        Multimap<String, File> empty = ImmutableMultimap.of();
+        Multimap<String, LocalDesignDocument> empty = ImmutableMultimap.of();
         return createInstance(failOnError, empty, createDbs);
     }
 
@@ -65,7 +64,7 @@ public class UpdateDesignDocsTest {
 
     @Test
     public void shouldNotAttemptToCreateExistingDatabase() throws IOException {
-        Multimap<String, File> one = ImmutableMultimap.of("sample", temporaryFolder.newFile());
+        Multimap<String, LocalDesignDocument> one = ImmutableMultimap.of("sample", new LocalDesignDocument(temporaryFolder.newFile()));
         when(couchFunctions.isExistentDatabase("sample")).thenReturn(true);
         createInstance(true, one, false).ensureDatabaseExists("sample");
         verify(couchFunctions).isExistentDatabase("sample");
@@ -74,7 +73,7 @@ public class UpdateDesignDocsTest {
 
     @Test
     public void shouldFailBuildIfNotConfiguredToCreateNonExistentDatabase() throws IOException {
-        Multimap<String, File> one = ImmutableMultimap.of("sample", temporaryFolder.newFile());
+        Multimap<String, LocalDesignDocument> one = ImmutableMultimap.of("sample", new LocalDesignDocument(temporaryFolder.newFile()));
         when(couchFunctions.isExistentDatabase("sample")).thenReturn(false);
         try {
             createInstance(true, one, false).ensureDatabaseExists("sample");
@@ -87,7 +86,7 @@ public class UpdateDesignDocsTest {
 
     @Test
     public void shouldCreateNonExistentDatabaseIfConfiguredToDoSo() throws IOException {
-        Multimap<String, File> one = ImmutableMultimap.of("sample", temporaryFolder.newFile());
+        Multimap<String, LocalDesignDocument> one = ImmutableMultimap.of("sample", new LocalDesignDocument(temporaryFolder.newFile()));
         when(couchFunctions.isExistentDatabase("sample")).thenReturn(false);
         createInstance(true, one, true).ensureDatabaseExists("sample");
         verify(couchFunctions).isExistentDatabase("sample");
@@ -95,17 +94,17 @@ public class UpdateDesignDocsTest {
         verifyNoMoreInteractions(couchFunctions);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = DocumentValidationException.class)
     public void loadLocalFileEnsuresDocIsADesignDoc() throws IOException {
         final String fileContents = "/not_a_design_doc.js";
         final File input = newTempFile(fileContents);
-        createInstance(true, false).processLocalDesignDocument("database", input);
+        createInstance(true, false).processLocalDesignDocument("database", new LocalDesignDocument(input));
     }
 
     @Test
     public void loadLocalFileEnsuresDocIsADesignDoc2() throws IOException {
         final File input = newTempFile("/design_doc.js");
-        createInstance(true, false).processLocalDesignDocument("database", input);
+        createInstance(true, false).processLocalDesignDocument("database", new LocalDesignDocument(input));
     }
 
     private File newTempFile(final String contents) throws IOException, FileNotFoundException {

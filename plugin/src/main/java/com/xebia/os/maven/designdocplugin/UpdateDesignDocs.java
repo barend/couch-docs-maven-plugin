@@ -15,10 +15,7 @@
 */
 package com.xebia.os.maven.designdocplugin;
 
-import java.io.File;
 import java.io.IOException;
-import org.codehaus.jackson.JsonNode;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
@@ -30,20 +27,17 @@ import com.google.common.collect.Multimap;
  */
 class UpdateDesignDocs {
 
-    private final JsonDocumentProcessor documentProcessor;
     private final Progress progress;
     private final CouchFunctions couchFunctions;
-    private final Multimap<String, File> localDesignDocuments;
+    private final Multimap<String, LocalDesignDocument> localDesignDocuments;
     private final boolean createDbs;
 
     public UpdateDesignDocs(
-            JsonDocumentProcessor documentProcessor,
             Progress progress,
             CouchFunctions couchFunctions,
-            Multimap<String, File> localDesignDocuments,
+            Multimap<String, LocalDesignDocument> localDesignDocuments,
             boolean createDbs) {
         super();
-        this.documentProcessor = Preconditions.checkNotNull(documentProcessor);
         this.progress = Preconditions.checkNotNull(progress);
         this.couchFunctions = Preconditions.checkNotNull(couchFunctions);
         this.localDesignDocuments = Preconditions.checkNotNull(localDesignDocuments);
@@ -54,7 +48,7 @@ class UpdateDesignDocs {
         for (final String databaseName : localDesignDocuments.keySet()) {
             progress.info("Processing database \"" + databaseName + "\".");
             ensureDatabaseExists(databaseName);
-            for (File localDocument : localDesignDocuments.get(databaseName)) {
+            for (LocalDesignDocument localDocument : localDesignDocuments.get(databaseName)) {
                 processLocalDesignDocument(databaseName, localDocument);
             }
         }
@@ -76,14 +70,21 @@ class UpdateDesignDocs {
     }
 
     @VisibleForTesting
-    void processLocalDesignDocument(final String databaseName, final File file) {
-        progress.debug("Loading file " + file);
+    void processLocalDesignDocument(final String databaseName, final LocalDesignDocument document) {
+        progress.debug("Loading file " + document);
         try {
-            final JsonNode localDocument = documentProcessor.loadFromDisk(file);
-            final String documentId = documentProcessor.assertThatDocumentIsADesignDocAndReturnId(localDocument);
+            document.load();
+            final String documentId = document.getId();
             progress.info("Processing design doucment \"" + documentId + "\".");
+
+            // Load remote document
+
+            // Check conflict behaviour, modify local _rev if needed
+
+            // Upload local document
+
         } catch (IOException e) {
-            progress.error("Could not load " + file + ": " + e.toString(), e);
+            progress.error("Could not load " + document + ": " + e.toString(), e);
         }
     }
 }

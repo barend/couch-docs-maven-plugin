@@ -132,17 +132,16 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
         assertExistingDocsParameterValid();
         dumpConfig();
         try {
-            final Multimap<String, File> localDocuments = findLocalDesignDocuments();
-            JsonDocumentProcessor processor = new JsonDocumentProcessor();
+            final Multimap<String, LocalDesignDocument> localDocuments = findLocalDesignDocuments();
             Progress progress = new Progress(failOnError, getLog());
             CouchFunctions couch = new SimpleCouchFunctions();
-            new UpdateDesignDocs(processor, progress , couch, localDocuments, createDbs).execute();
+            new UpdateDesignDocs(progress , couch, localDocuments, createDbs).execute();
         } catch (RuntimeException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 
-    private Multimap<String, File> findLocalDesignDocuments() throws MojoExecutionException {
+    private Multimap<String, LocalDesignDocument> findLocalDesignDocuments() throws MojoExecutionException {
         final LocalDesignDocumentsSelector docsCollector = new LocalDesignDocumentsSelector(baseDir, getLog(), includes, excludes);
         try {
             return docsCollector.select();
