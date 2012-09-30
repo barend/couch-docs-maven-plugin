@@ -21,7 +21,6 @@ obtain a copy of this license from the following url:
 
  * Detect design documents in CouchDB that aren't in the source code
    and offer to keep or delete them, or fail the build.
- * Add includes and excludes glob patterns to the configuration.
  * Take advantage of Maven 3's encrypted credential store.
 
 [apache2]: http://www.apache.org/licenses/LICENSE-2.0
