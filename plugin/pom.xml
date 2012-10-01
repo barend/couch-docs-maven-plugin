@@ -35,6 +35,16 @@
     </developer>
   </developers>
 
+  <scm>
+    <connection>scm:git:git@github.com:xebia/designdocs-maven-plugin.git</connection>
+    <url>https://github.com/xebia/designdocs-maven-plugin</url>
+  </scm>
+
+  <issueManagement>
+    <system>github</system>
+    <url>https://github.com/xebia/designdocs-maven-plugin/issues</url>
+  </issueManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
