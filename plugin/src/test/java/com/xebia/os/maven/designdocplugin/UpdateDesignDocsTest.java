@@ -154,7 +154,7 @@ public class UpdateDesignDocsTest {
         final Config config = new Config(ExistingDocs.UPDATE, UnknownDatabases.FAIL);
         final Progress progress = new Progress(true, log);
 
-        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_Design_doc.js"));
+        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_design_doc.js"));
         final LocalDesignDocument localDoc = new LocalDesignDocument(newTempFile("/design_doc.js"));
         Multimap<String, LocalDesignDocument> docs = ImmutableMultimap.of("database", localDoc);
 
@@ -175,7 +175,7 @@ public class UpdateDesignDocsTest {
         final Config config = new Config(ExistingDocs.REPLACE, UnknownDatabases.FAIL);
         final Progress progress = new Progress(true, log);
 
-        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_Design_doc.js"));
+        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_design_doc.js"));
         final LocalDesignDocument localDoc = new LocalDesignDocument(newTempFile("/design_doc.js"));
         Multimap<String, LocalDesignDocument> docs = ImmutableMultimap.of("database", localDoc);
 
@@ -197,7 +197,7 @@ public class UpdateDesignDocsTest {
         final Config config = new Config(ExistingDocs.KEEP, UnknownDatabases.FAIL);
         final Progress progress = new Progress(true, log);
 
-        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_Design_doc.js"));
+        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_design_doc.js"));
         final LocalDesignDocument localDoc = new LocalDesignDocument(newTempFile("/design_doc.js"));
         Multimap<String, LocalDesignDocument> docs = ImmutableMultimap.of("database", localDoc);
 
@@ -216,7 +216,7 @@ public class UpdateDesignDocsTest {
         final Config config = new Config(ExistingDocs.FAIL, UnknownDatabases.FAIL);
         final Progress progress = new Progress(true, log);
 
-        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_Design_doc.js"));
+        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_design_doc.js"));
         final LocalDesignDocument localDoc = new LocalDesignDocument(newTempFile("/design_doc.js"));
         Multimap<String, LocalDesignDocument> docs = ImmutableMultimap.of("database", localDoc);
 
@@ -244,7 +244,7 @@ public class UpdateDesignDocsTest {
         final Config config = new Config(ExistingDocs.FAIL, UnknownDatabases.FAIL);
         final Progress progress = new Progress(false, log);
 
-        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_Design_doc.js"));
+        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_design_doc.js"));
         final LocalDesignDocument localDoc = new LocalDesignDocument(newTempFile("/design_doc.js"));
         Multimap<String, LocalDesignDocument> docs = ImmutableMultimap.of("database", localDoc);
 
