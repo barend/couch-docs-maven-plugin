@@ -198,4 +198,12 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     public void setSkip(boolean skip) {
         this.skip = skip;
     }
+
+    public void setExcludes(String[] excludes) {
+        this.excludes = excludes == null ? null : excludes.clone();
+    }
+
+    public void setIncludes(String[] includes) {
+        this.includes = includes == null ? null : includes.clone();
+    }
 }
