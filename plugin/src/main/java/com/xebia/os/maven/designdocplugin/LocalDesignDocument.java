@@ -49,6 +49,10 @@ class LocalDesignDocument extends DesignDocument {
         getRootNode().put("_rev", rev);
     }
 
+    public String getJson() {
+        return getRootNode().toString();
+    }
+
     @Override
     public String toString() {
         String result = "LocalDesignDocument[ " + file;

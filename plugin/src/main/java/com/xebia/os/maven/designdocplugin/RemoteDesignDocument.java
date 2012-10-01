@@ -16,8 +16,11 @@
 package com.xebia.os.maven.designdocplugin;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonParser.Feature;
+
 import com.google.common.base.Preconditions;
 
 /**
@@ -26,6 +29,13 @@ import com.google.common.base.Preconditions;
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
 class RemoteDesignDocument extends DesignDocument {
+
+    public RemoteDesignDocument(InputStream data) throws IOException, DocumentValidationException {
+        Preconditions.checkNotNull(data, "data argument cannot be null");
+        final JsonParser parser = getJsonFactory().createJsonParser(data);
+        parser.configure(Feature.AUTO_CLOSE_SOURCE, true);
+        initRootNode(parser);
+    }
 
     public RemoteDesignDocument(byte[] data) throws IOException, DocumentValidationException {
         Preconditions.checkNotNull(data, "data argument cannot be null");
