@@ -27,12 +27,15 @@ import java.io.InputStream;
 import java.security.SecureRandom;
 
 import org.codehaus.plexus.util.IOUtil;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 
 import com.google.common.base.Optional;
+import com.xebia.os.maven.designdocplugin.junit.ConditionalTestRunner;
+import com.xebia.os.maven.designdocplugin.junit.EnvironmentCondition;
+import com.xebia.os.maven.designdocplugin.junit.EnvironmentCondition.Kind;
 
 /**
  * Integration test for the {@link CouchFunctionsImpl}.
@@ -45,7 +48,7 @@ import com.google.common.base.Optional;
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-@Ignore("This is an integration test that requires manual intervention.")
+@RunWith(ConditionalTestRunner.class)
 public class CouchFunctionsImplTest {
 
     private static final String BASE_URL = "http://admin:admin@localhost:5984";
@@ -53,6 +56,7 @@ public class CouchFunctionsImplTest {
     @Rule public TemporaryFolder tempDir = new TemporaryFolder();
 
     @Test
+    @EnvironmentCondition(name = "COUCHDB_INTEGRATION_TESTS", kind = Kind.ENVIRONMENT_VARIABLE)
     public void playScenario() throws IOException {
         final String databaseName = "test-database-" + (new SecureRandom()).nextLong();
         final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
