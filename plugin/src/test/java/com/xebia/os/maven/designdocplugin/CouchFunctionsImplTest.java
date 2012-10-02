@@ -18,6 +18,7 @@ package com.xebia.os.maven.designdocplugin;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,6 +50,7 @@ import com.xebia.os.maven.designdocplugin.junit.EnvironmentCondition.Kind;
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
 @RunWith(ConditionalTestRunner.class)
+@EnvironmentCondition(name = "COUCHDB_INTEGRATION_TESTS", kind = Kind.ENVIRONMENT_VARIABLE)
 public class CouchFunctionsImplTest {
 
     private static final String BASE_URL = "http://admin:admin@localhost:5984";
@@ -56,7 +58,6 @@ public class CouchFunctionsImplTest {
     @Rule public TemporaryFolder tempDir = new TemporaryFolder();
 
     @Test
-    @EnvironmentCondition(name = "COUCHDB_INTEGRATION_TESTS", kind = Kind.ENVIRONMENT_VARIABLE)
     public void playScenario() throws IOException {
         final String databaseName = "test-database-" + (new SecureRandom()).nextLong();
         final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
@@ -100,6 +101,17 @@ public class CouchFunctionsImplTest {
         // 9. isExistentDatabase() -> false
         assertFalse("The database randomly named \"" + databaseName + "\" should no longer exist.",
                 impl.isExistentDatabase(databaseName));
+    }
+
+    @Test
+    public void shouldWrapServerErrors() throws IOException {
+        try {
+            final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
+            impl.createDatabase("Database-Names-Cannot-Have-Capital-Letters");
+            fail("An exception should have been thrown.");
+        } catch (CouchDatabaseException e) {
+            assertEquals(400, e.getResponseCode());
+        }
     }
 
     private File newTempFile(final String source) throws IOException, FileNotFoundException {

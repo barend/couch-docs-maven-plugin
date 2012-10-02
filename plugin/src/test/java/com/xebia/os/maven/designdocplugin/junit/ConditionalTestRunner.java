@@ -17,13 +17,13 @@ package com.xebia.os.maven.designdocplugin.junit;
 
 import java.lang.annotation.Annotation;
 
-import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 
 /**
+ * JUnit {@code TestRunner} that can process the {@link EnvironmentCondition} annotation.
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
@@ -35,21 +35,23 @@ public class ConditionalTestRunner extends BlockJUnit4ClassRunner {
 
     @Override
     protected void runChild(FrameworkMethod method, RunNotifier notifier) {
-        boolean run = true;
-        final Annotation[] annotations = method.getAnnotations();
+        boolean run = evaluate(getTestClass().getAnnotations())
+                   && evaluate(method.getAnnotations());
+        if (run) {
+            super.runChild(method, notifier);
+        } else {
+            notifier.fireTestIgnored(describeChild(method));
+        }
+    }
 
+    private static boolean evaluate(final Annotation[] annotations) {
+        boolean run = true;
         for (int i = 0, max = annotations.length; run && i < max; i++) {
             final Annotation annotation = annotations[i];
             if (annotation instanceof EnvironmentCondition) {
                 run = EnvironmentCondition.Evaluator.eval((EnvironmentCondition) annotation);
             }
         }
-
-        if (run) {
-            super.runChild(method, notifier);
-        } else {
-            Description desc = Description.createTestDescription(getTestClass().getJavaClass(), method.getName(), annotations);
-            notifier.fireTestIgnored(desc);
-        }
+        return run;
     }
 }

@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
 @Documented
-@Target(ElementType.METHOD)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EnvironmentCondition {
 
