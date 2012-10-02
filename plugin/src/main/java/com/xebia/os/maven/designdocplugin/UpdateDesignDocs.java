@@ -101,7 +101,7 @@ class UpdateDesignDocs {
         try {
             localDocument.load();
             final String documentId = localDocument.getId();
-            progress.info("Processing design doucment \"" + documentId + "\".");
+            progress.info("Processing design document \"" + documentId + "\" from \"" + databaseName + '/' + localDocument.getFile().getName() + "\".");
 
         } catch (IOException e) {
             progress.error("Could not load " + localDocument + ": " + e.toString(), e);
@@ -124,9 +124,11 @@ class UpdateDesignDocs {
         try {
             if (remoteDocument.isPresent()) {
                 if (resolveConflict(databaseName, localDocument, remoteDocument.get())) {
+                    progress.info("Uploading document \"" + localDocument.getId() + "\" to database \"" + databaseName + "\".");
                     couchFunctions.upload(databaseName, localDocument);
                 }
             } else {
+                progress.info("Uploading document \"" + localDocument.getId() + "\" to database \"" + databaseName + "\".");
                 couchFunctions.upload(databaseName, localDocument);
             }
         } catch (IOException e) {
