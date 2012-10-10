@@ -150,7 +150,7 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
             CouchFunctions couch = new CouchFunctionsImpl(couchUrl);
             new UpdateDesignDocs(config, progress, couch, localDocuments).execute();
         } catch (RuntimeException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
+            throw new MojoExecutionException(e.toString(), e);
         }
     }
 
