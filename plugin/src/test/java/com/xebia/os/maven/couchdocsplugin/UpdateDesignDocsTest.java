@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package com.xebia.os.maven.designdocplugin;
+package com.xebia.os.maven.couchdocsplugin;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -45,8 +45,14 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
-import com.xebia.os.maven.designdocplugin.Config.ExistingDocs;
-import com.xebia.os.maven.designdocplugin.Config.UnknownDatabases;
+import com.xebia.os.maven.couchdocsplugin.Config;
+import com.xebia.os.maven.couchdocsplugin.CouchFunctions;
+import com.xebia.os.maven.couchdocsplugin.LocalDesignDocument;
+import com.xebia.os.maven.couchdocsplugin.Progress;
+import com.xebia.os.maven.couchdocsplugin.RemoteDesignDocument;
+import com.xebia.os.maven.couchdocsplugin.UpdateDesignDocs;
+import com.xebia.os.maven.couchdocsplugin.Config.ExistingDocs;
+import com.xebia.os.maven.couchdocsplugin.Config.UnknownDatabases;
 
 
 @RunWith(MockitoJUnitRunner.class)

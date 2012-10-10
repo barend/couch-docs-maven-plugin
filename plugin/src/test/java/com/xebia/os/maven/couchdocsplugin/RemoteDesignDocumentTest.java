@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package com.xebia.os.maven.designdocplugin;
+package com.xebia.os.maven.couchdocsplugin;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -24,6 +24,9 @@ import java.io.InputStream;
 
 import org.codehaus.plexus.util.IOUtil;
 import org.junit.Test;
+
+import com.xebia.os.maven.couchdocsplugin.DocumentValidationException;
+import com.xebia.os.maven.couchdocsplugin.RemoteDesignDocument;
 
 
 public class RemoteDesignDocumentTest {

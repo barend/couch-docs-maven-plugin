@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package com.xebia.os.maven.designdocplugin;
+package com.xebia.os.maven.couchdocsplugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,9 +34,13 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import com.google.common.base.Optional;
-import com.xebia.os.maven.designdocplugin.junit.ConditionalTestRunner;
-import com.xebia.os.maven.designdocplugin.junit.EnvironmentCondition;
-import com.xebia.os.maven.designdocplugin.junit.EnvironmentCondition.Kind;
+import com.xebia.os.maven.couchdocsplugin.CouchDatabaseException;
+import com.xebia.os.maven.couchdocsplugin.CouchFunctionsImpl;
+import com.xebia.os.maven.couchdocsplugin.LocalDesignDocument;
+import com.xebia.os.maven.couchdocsplugin.RemoteDesignDocument;
+import com.xebia.os.maven.couchdocsplugin.junit.ConditionalTestRunner;
+import com.xebia.os.maven.couchdocsplugin.junit.EnvironmentCondition;
+import com.xebia.os.maven.couchdocsplugin.junit.EnvironmentCondition.Kind;
 
 /**
  * Integration test for the {@link CouchFunctionsImpl}.

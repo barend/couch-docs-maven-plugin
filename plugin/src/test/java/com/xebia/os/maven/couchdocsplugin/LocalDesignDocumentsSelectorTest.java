@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package com.xebia.os.maven.designdocplugin;
+package com.xebia.os.maven.couchdocsplugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -41,7 +41,8 @@ import org.sonatype.inject.Nullable;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
-import com.xebia.os.maven.designdocplugin.LocalDesignDocumentsSelector;
+import com.xebia.os.maven.couchdocsplugin.LocalDesignDocument;
+import com.xebia.os.maven.couchdocsplugin.LocalDesignDocumentsSelector;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LocalDesignDocumentsSelectorTest {

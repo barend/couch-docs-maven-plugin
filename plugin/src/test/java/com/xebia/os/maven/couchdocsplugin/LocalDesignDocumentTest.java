@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package com.xebia.os.maven.designdocplugin;
+package com.xebia.os.maven.couchdocsplugin;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -30,6 +30,9 @@ import org.codehaus.plexus.util.IOUtil;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import com.xebia.os.maven.couchdocsplugin.DocumentValidationException;
+import com.xebia.os.maven.couchdocsplugin.LocalDesignDocument;
 
 
 public class LocalDesignDocumentTest {

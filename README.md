@@ -1,4 +1,4 @@
-# designdocs-maven-plugin
+# couch-docs-maven-plugin
 
 ## Introduction
 
@@ -34,6 +34,6 @@ Issues and TODO's are kept in the [issue tracker][issues] on github.
 
 [apache2]: http://www.apache.org/licenses/LICENSE-2.0
 [couch]: http://wiki.apache.org/couchdb/
-[issues]: https://github.com/xebia/designdocs-maven-plugin/issues
+[issues]: https://github.com/xebia/couch-docs-maven-plugin/issues
 [cmpl]: https://github.com/dthume/couchdb-maven-plugin
 [couchapp]: http://couchapp.org/

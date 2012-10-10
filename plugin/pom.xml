@@ -2,8 +2,8 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.xebia.os.designdocs-maven-plugin</groupId>
-  <artifactId>designdocs-maven-plugin</artifactId>
+  <groupId>com.xebia.os.couch-docs-maven-plugin</groupId>
+  <artifactId>couch-docs-maven-plugin</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
@@ -36,13 +36,13 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git@github.com:xebia/designdocs-maven-plugin.git</connection>
-    <url>https://github.com/xebia/designdocs-maven-plugin</url>
+    <connection>scm:git:git@github.com:xebia/couch-docs-maven-plugin.git</connection>
+    <url>https://github.com/xebia/couch-docs-maven-plugin</url>
   </scm>
 
   <issueManagement>
     <system>github</system>
-    <url>https://github.com/xebia/designdocs-maven-plugin/issues</url>
+    <url>https://github.com/xebia/couch-docs-maven-plugin/issues</url>
   </issueManagement>
 
   <dependencies>

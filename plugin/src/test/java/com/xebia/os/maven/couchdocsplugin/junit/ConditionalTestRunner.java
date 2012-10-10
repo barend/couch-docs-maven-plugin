@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package com.xebia.os.maven.designdocplugin.junit;
+package com.xebia.os.maven.couchdocsplugin.junit;
 
 import java.lang.annotation.Annotation;
 

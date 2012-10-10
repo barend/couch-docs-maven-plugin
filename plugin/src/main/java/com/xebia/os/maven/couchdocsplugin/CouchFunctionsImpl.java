@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package com.xebia.os.maven.designdocplugin;
+package com.xebia.os.maven.couchdocsplugin;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -40,7 +40,7 @@ class CouchFunctionsImpl implements CouchFunctions {
 
     private final URL baseUrl;
     private final String authorization;
-    private static final String HTTP_USER_AGENT = "designdocs-maven-plugin; Java " + System.getProperty("java.vm.name")
+    private static final String HTTP_USER_AGENT = "couch-docs-maven-plugin; Java " + System.getProperty("java.vm.name")
             + " " + System.getProperty("java.vm.version");
     private static final int HTTP_OK = 200;
     private static final int HTTP_CREATED = 201;
