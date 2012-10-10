@@ -5,6 +5,11 @@
   <groupId>com.xebia.os.couch-docs-maven-plugin</groupId>
   <artifactId>couch-docs-maven-plugin-example</artifactId>
   <version>0.1-SNAPSHOT</version>
+  <!--
+
+     Note: packaging doesn't have to be "pom".
+
+  -->
   <packaging>pom</packaging>
 
   <name>CouchDB Design Doc Updater Plugin Example</name>
@@ -23,6 +28,16 @@
   <build>
     <plugins>
       <plugin>
+      <!--
+
+         This is an example of configuring the plugin for use from the command
+         line. It includes the various configuration values. Remember that you
+         can run `mvn help:describe -Dplugin=couch-docs -Ddetail` for a
+         description of all valid configuration options.
+
+         Invoke with `mvn couch-docs:update`.
+
+      -->
         <groupId>com.xebia.os.couch-docs-maven-plugin</groupId>
         <artifactId>couch-docs-maven-plugin</artifactId>
         <version>0.1-SNAPSHOT</version>
@@ -34,7 +49,56 @@
           <existingDocs>UPDATE</existingDocs>
         </configuration>
       </plugin>
+      <!--
+
+        /example
+
+      -->
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>couchdocs</id>
+      <build>
+        <plugins>
+          <!--
+
+             This is an example of configuring the plugin for use with a lifecycle
+             binding. It relies on the defaults for all configuration attributes
+             except couchUrl. (Actually, this *is* the default value for couchUrl.)
+
+             Invoke with `mvn install -Pcouchdocs`.
+
+             I'm using a build profile for the sake of example, you can put it in
+             your regular <build> element if that suits you.
+
+          -->
+          <plugin>
+            <groupId>com.xebia.os.couch-docs-maven-plugin</groupId>
+            <artifactId>couch-docs-maven-plugin</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <executions>
+              <execution>
+                <id>update couch docs</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>update</goal>
+                </goals>
+                <configuration>
+                  <couchUrl>http://localhost:5984</couchUrl>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!--
+
+            /example
+
+          -->
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
   <!-- vim: set fenc=utf8 sw=2 et list : -->
 </project>
