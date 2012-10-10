@@ -57,7 +57,7 @@ line:
         <!--
           unknownDatabases: How to handle databases that exist in your 
           filesystem structure but not in the Couch instance.
-          CREATE
+          CREATE (default)
               Create the database and upload the design docs.
           SKIP
               Skip over this database, don't upload anything.
@@ -71,7 +71,7 @@ line:
           KEEP
               The original document is kept in CouchDB unmodified. The local
               document is ignored. A warning is emitted.
-          UPDATE
+          UPDATE (default)
               The _rev of the original document is copied into the local
               document and the local document is then posted to Couch as an
               update. The document history will show a single change.
@@ -88,7 +88,8 @@ line:
 ```
 
 For an example of how to configure the plugin with a lifecyle binding, consult
-[the pom of the example project][examplepom].
+[the pom of the example project][examplepom]. To get more information about the
+plugin parameters, run `mvn help:describe -Dplugin=couch-docs -Ddetail`.
 
 ### Invocation
 
@@ -98,19 +99,17 @@ just run a maven build to the desired lifecycle phase.
 
 ## Caveats
 
-Each document is parsed using the Jackson parser and the JSON DOM, *not the raw
+ * Each document is parsed using the Jackson parser and the JSON DOM, *not the raw
 content from disk*, is serialized to UTF-8 and transferred to CouchDB. This could
 cause problems if you use an exotic encoding or very large files.
-
-File encoding is detected by the Jackson parser, as per
-[JsonFactory.createJsonParser(java.io.file][jfcjp].
-
-The plugin has no notion of CouchDB attachments. Inlining them in your JSON files
+ * File encoding is detected by the Jackson parser, as per
+[JsonFactory.createJsonParser(java.io.file)][jfcjp].
+ * The plugin has no notion of CouchDB attachments. Inlining them in your JSON files
 will work.
 
 ## How is this different from couchdb-maven-plugin?
 
-At first glance, this plugin appears to be a duplicate of D.T. Hume's
+At first glance, this plugin may appear to be a duplicate of D.T. Hume's
 [couchdb-maven-plugin][cmpl]. The difference is that the couchdb-maven-plugin
 is designed to assemble [couch apps][couchapp], which come with their own tool
 chain and specific filesystem structure. This plugin merely pushes documents
