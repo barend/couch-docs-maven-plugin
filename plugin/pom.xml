@@ -100,4 +100,5 @@
       </plugin>
     </plugins>
   </build>
+  <!-- vim: set fenc=utf8 sw=2 et list : -->
 </project>
