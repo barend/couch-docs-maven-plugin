@@ -42,7 +42,8 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
      * The URL to the CouchDB instance.
      *
      * <p>This is the server URL, it should not include a database name. If the database
-     * requires authentication, the username and password should be provided in the URL.</p>
+     * requires authentication, the username and password should be provided in the URL
+     * using the http://username:password@hostname:port syntax.</p>
      *
      * @parameter expression="${designdocs.couchUrl}" default-value="http://localhost:5984"
      * @required
@@ -50,18 +51,23 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     private URL couchUrl;
 
     /**
-     * The directory where design documents are kept. This directory should contain a sub directory
-     * for every database in your couch instance. This sub directory, in turn, contains the design docs.
+     * The directory where design documents are kept.
      *
-     * @parameter expression="${designdocs.baseDir}" default-value="src/main/couchdb"
+     * <p>This directory should contain a sub directory for every database in your
+     * couch instance. This sub directory, in turn, contains the design docs.
+     * Couch database names can include slashes. You can use further sub directories to
+     * express such database names.</p>
+     *
+     * @parameter expression="${designdocs.baseDir}"
+     *            default-value="src/main/couchdb"
      * @required
      */
     private File baseDir;
 
     /**
-     * How to handle nonexistent databases (CREATE, SKIP, FAIL).
+     * How to handle databases that exist in your filesystem structure but not in the Couch
+     * instance.
      *
-     * <p>Valid options:</p>
      * <dl>
      * <dt>CREATE</dt>
      * <dd>Create the database and upload the design docs.</dd>
@@ -78,9 +84,8 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     private String unknownDatabases;
 
     /**
-     * How to handle existing documents (KEEP, UPDATE, REPLACE, FAIL).
+     * How to handle documents that already exist in the Couch instance.
      *
-     * <p>Valid options:</p>
      * <dl>
      * <dt>KEEP<dt>
      * <dd>The original document is kept in CouchDB unmodified. The local document
@@ -112,7 +117,7 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     private boolean failOnError;
 
     /**
-     * The URL to the CouchDB instance.
+     * Skip execution if true, just like "-Dmaven.test.skip=true".
      *
      * @parameter expression="${designdocs.skip}"
      */
