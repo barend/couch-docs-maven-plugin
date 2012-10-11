@@ -15,7 +15,7 @@
 */
 package com.xebia.os.maven.couchdocsplugin;
 
-class CouchDatabaseException extends RuntimeException {
+public class CouchDatabaseException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     private final int responseCode;
 
