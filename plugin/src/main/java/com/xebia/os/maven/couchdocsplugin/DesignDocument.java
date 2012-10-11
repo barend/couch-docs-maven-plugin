@@ -32,7 +32,7 @@ import com.google.common.base.Preconditions;
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-public abstract class DesignDocument {
+abstract class DesignDocument {
 
     private static final JsonFactory JSON_FACTORY = createJsonFactory();
 
