@@ -7,13 +7,15 @@
   <version>0.1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
-  <name>CouchDB Design Doc Updater Plugin</name>
+  <name>CouchDB Document Updater Plugin</name>
 
   <description>
     This Maven plugin scans a project source directory for CouchDB design documents and
     updates a CouchDB instance to ensure that the design documents on the server match
     the ones in the source directory.
   </description>
+
+  <url>https://github.com/xebia/couch-docs-maven-plugin</url>
 
   <licenses>
     <license>
@@ -54,7 +56,7 @@
     <dependency>
       <!-- This is a transitive dependency of maven-plugin-api that we use
            directly in the plugin code. If the maven-plugin-api dependency
-	   is changed, this version should be bumped accordingly. -->
+           is changed, this version should be bumped accordingly. -->
       <groupId>org.sonatype.sisu</groupId>
       <artifactId>sisu-guava</artifactId>
       <version>0.9.9</version>
@@ -97,6 +99,37 @@
           <source>1.6</source>
           <target>1.6</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.2</version>
+        <executions>
+          <execution>
+            <id>sources</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9</version>
+        <executions>
+          <execution>
+            <id>javadoc</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <show>private</show>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
