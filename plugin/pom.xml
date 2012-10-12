@@ -10,8 +10,8 @@
   <name>CouchDB Document Updater Plugin</name>
 
   <description>
-    This Maven plugin scans a project source directory for CouchDB design documents and
-    updates a CouchDB instance to ensure that the design documents on the server match
+    This Maven plugin scans a project source directory for CouchDB documents and
+    updates a CouchDB instance to ensure that the documents on the server match
     the ones in the source directory.
   </description>
 

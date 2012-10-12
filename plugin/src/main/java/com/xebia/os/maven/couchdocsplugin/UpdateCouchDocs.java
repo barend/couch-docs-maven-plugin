@@ -28,33 +28,33 @@ import com.google.common.collect.Multimap;
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-class UpdateDesignDocs {
+class UpdateCouchDocs {
 
     private final Config config;
     private final Progress progress;
     private final CouchFunctions couchFunctions;
-    private final Multimap<String, LocalDesignDocument> localDesignDocuments;
+    private final Multimap<String, LocalDocument> localDocuments;
 
-    public UpdateDesignDocs(
+    public UpdateCouchDocs(
             Config config,
             Progress progress,
             CouchFunctions couchFunctions,
-            Multimap<String, LocalDesignDocument> localDesignDocuments) {
+            Multimap<String, LocalDocument> localDocuments) {
         super();
         this.config = Preconditions.checkNotNull(config);
         this.progress = Preconditions.checkNotNull(progress);
         this.couchFunctions = Preconditions.checkNotNull(couchFunctions);
-        this.localDesignDocuments = Preconditions.checkNotNull(localDesignDocuments);
+        this.localDocuments = Preconditions.checkNotNull(localDocuments);
     }
 
     public void execute() {
-        final Set<String> databases = localDesignDocuments.keySet();
+        final Set<String> databases = localDocuments.keySet();
         for (final String databaseName : databases) {
             progress.info("Processing database \"" + databaseName + "\".");
             try {
                 if (ensureDatabaseExists(databaseName)) {
-                    final Collection<LocalDesignDocument> documents = localDesignDocuments.get(databaseName);
-                    for (LocalDesignDocument localDocument : documents) {
+                    final Collection<LocalDocument> documents = localDocuments.get(databaseName);
+                    for (LocalDocument localDocument : documents) {
                         processLocalDesignDocument(databaseName, localDocument);
                     }
                 }
@@ -96,12 +96,12 @@ class UpdateDesignDocs {
         return result;
     }
 
-    private void processLocalDesignDocument(final String databaseName, final LocalDesignDocument localDocument) {
+    private void processLocalDesignDocument(final String databaseName, final LocalDocument localDocument) {
         progress.debug("Loading file " + localDocument);
         try {
             localDocument.load();
             final String documentId = localDocument.getId();
-            progress.info("Processing design document \"" + documentId + "\" from \"" + databaseName + '/' + localDocument.getFile().getName() + "\".");
+            progress.info("Processing document \"" + documentId + "\" from \"" + databaseName + '/' + localDocument.getFile().getName() + "\".");
 
         } catch (IOException e) {
             progress.error("Could not load " + localDocument + ": " + e.toString(), e);
@@ -111,7 +111,7 @@ class UpdateDesignDocs {
             progress.warn(localDocument + " contains a _rev field; this will be ignored or overwritten.");
         }
 
-        Optional<RemoteDesignDocument> remoteDocument;
+        Optional<RemoteDocument> remoteDocument;
         try {
             remoteDocument = couchFunctions.download(databaseName, localDocument.getId());
         } catch (IOException e) {
@@ -140,7 +140,7 @@ class UpdateDesignDocs {
     /**
      * @return {@code true} if {@code localDocument} should be uploaded after this method returns.
      */
-    private boolean resolveConflict(String databaseName, LocalDesignDocument localDocument, RemoteDesignDocument remoteDocument) throws IOException {
+    private boolean resolveConflict(String databaseName, LocalDocument localDocument, RemoteDocument remoteDocument) throws IOException {
         Preconditions.checkArgument(localDocument.getId().equals(remoteDocument.getId()));
         final boolean result;
 

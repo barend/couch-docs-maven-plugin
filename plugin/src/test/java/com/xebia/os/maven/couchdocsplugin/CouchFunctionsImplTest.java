@@ -36,8 +36,8 @@ import org.junit.runner.RunWith;
 import com.google.common.base.Optional;
 import com.xebia.os.maven.couchdocsplugin.CouchDatabaseException;
 import com.xebia.os.maven.couchdocsplugin.CouchFunctionsImpl;
-import com.xebia.os.maven.couchdocsplugin.LocalDesignDocument;
-import com.xebia.os.maven.couchdocsplugin.RemoteDesignDocument;
+import com.xebia.os.maven.couchdocsplugin.LocalDocument;
+import com.xebia.os.maven.couchdocsplugin.RemoteDocument;
 import com.xebia.os.maven.couchdocsplugin.junit.ConditionalTestRunner;
 import com.xebia.os.maven.couchdocsplugin.junit.EnvironmentCondition;
 import com.xebia.os.maven.couchdocsplugin.junit.EnvironmentCondition.Kind;
@@ -78,12 +78,12 @@ public class CouchFunctionsImplTest {
                 impl.isExistentDatabase(databaseName));
 
         // 3. download() -> not found
-        Optional<RemoteDesignDocument> remoteDoc = impl.download(databaseName, "_design/Demo");
+        Optional<RemoteDocument> remoteDoc = impl.download(databaseName, "_design/Demo");
         assertFalse("The document \"_design/Demo\" should not exist in the database.", remoteDoc.isPresent());
 
         // 4. upload()
         File file = newTempFile("/design_doc.js");
-        LocalDesignDocument localDoc = new LocalDesignDocument(file);
+        LocalDocument localDoc = new LocalDocument(file);
         localDoc.load();
         assertEquals("The local document should have the id \"_design/Demo\".", "_design/Demo", localDoc.getId());
         impl.upload(databaseName, localDoc);
@@ -120,7 +120,7 @@ public class CouchFunctionsImplTest {
 
     private File newTempFile(final String source) throws IOException, FileNotFoundException {
         File result = tempDir.newFile();
-        final InputStream dummyData = UpdateDesignDocsTest.class.getResourceAsStream(source);
+        final InputStream dummyData = UpdateCouchDocsTest.class.getResourceAsStream(source);
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(result);

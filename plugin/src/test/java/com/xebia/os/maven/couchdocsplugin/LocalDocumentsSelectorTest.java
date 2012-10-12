@@ -41,11 +41,11 @@ import org.sonatype.inject.Nullable;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
-import com.xebia.os.maven.couchdocsplugin.LocalDesignDocument;
-import com.xebia.os.maven.couchdocsplugin.LocalDesignDocumentsSelector;
+import com.xebia.os.maven.couchdocsplugin.LocalDocument;
+import com.xebia.os.maven.couchdocsplugin.LocalDocumentsSelector;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LocalDesignDocumentsSelectorTest {
+public class LocalDocumentsSelectorTest {
 
     @Rule public TemporaryFolder tempDir = new TemporaryFolder();
     @Mock private Log log;
@@ -56,8 +56,8 @@ public class LocalDesignDocumentsSelectorTest {
         createTempFile("doc3.js");
         createTempFile("doc3.json");
 
-        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), log);
-        final Multimap<String, LocalDesignDocument> selected = collector.select();
+        final LocalDocumentsSelector collector = new LocalDocumentsSelector(tempDir.getRoot(), log);
+        final Multimap<String, LocalDocument> selected = collector.select();
         assertEquals("Should find no qualifying files.", 0, selected.size());
     }
 
@@ -66,10 +66,10 @@ public class LocalDesignDocumentsSelectorTest {
         final File d2doc1 = createTempFile("database/doc1.json");
         final File d2dud1 = createTempFile("database/readme.txt");
 
-        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), log);
-        final Multimap<String, LocalDesignDocument> selected = collector.select();
+        final LocalDocumentsSelector collector = new LocalDocumentsSelector(tempDir.getRoot(), log);
+        final Multimap<String, LocalDocument> selected = collector.select();
         assertEquals("Should find one qualifying file.", 1, selected.size());
-        final Collection<LocalDesignDocument> docs = selected.get("database");
+        final Collection<LocalDocument> docs = selected.get("database");
         assertFalse("Should ignore non-json files.", Iterables.any(docs, selectedFile(d2dud1)));
         assertTrue("Should find js file in database.", Iterables.any(docs, selectedFile(d2doc1)));
     }
@@ -80,53 +80,53 @@ public class LocalDesignDocumentsSelectorTest {
         final File d1doc2 = createTempFile("database1/doc2.json");
         final File d2doc1 = createTempFile("database2/doc1.json");
 
-        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), log);
-        final Multimap<String, LocalDesignDocument> selected = collector.select();
+        final LocalDocumentsSelector collector = new LocalDocumentsSelector(tempDir.getRoot(), log);
+        final Multimap<String, LocalDocument> selected = collector.select();
         assertEquals("Should find three qualifying files.", 3, selected.size());
-        final Collection<LocalDesignDocument> d1docs = selected.get("database1");
+        final Collection<LocalDocument> d1docs = selected.get("database1");
         assertTrue("Should find js file in database.", Iterables.any(d1docs, selectedFile(d1doc1)));
         assertTrue("Should find json file in database.", Iterables.any(d1docs, selectedFile(d1doc2)));
-        final Collection<LocalDesignDocument> d2docs = selected.get("database2");
+        final Collection<LocalDocument> d2docs = selected.get("database2");
         assertTrue("Should find js file in second database.", Iterables.any(d2docs, selectedFile(d2doc1)));
     }
 
     @Test
     public void shouldSupportSlashesInDbNames() throws IOException {
         final File d2doc1 = createTempFile("customers/japan/doc1.json");
-        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), log);
-        final Multimap<String, LocalDesignDocument> selected = collector.select();
+        final LocalDocumentsSelector collector = new LocalDocumentsSelector(tempDir.getRoot(), log);
+        final Multimap<String, LocalDocument> selected = collector.select();
         assertEquals("Should find one qualifying file.", 1, selected.size());
-        final Collection<LocalDesignDocument> docs = selected.get("customers/japan");
+        final Collection<LocalDocument> docs = selected.get("customers/japan");
         assertTrue("Should find js file in database.", Iterables.any(docs, selectedFile(d2doc1)));
     }
 
     @Test
     public void shouldAllowAllSupportedWeirdCharacters() throws IOException {
         final File d2doc1 = createTempFile("ha_$()+-000/doc1.json");
-        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), log);
-        final Multimap<String, LocalDesignDocument> selected = collector.select();
+        final LocalDocumentsSelector collector = new LocalDocumentsSelector(tempDir.getRoot(), log);
+        final Multimap<String, LocalDocument> selected = collector.select();
         assertEquals("Should find one qualifying file.", 1, selected.size());
-        final Collection<LocalDesignDocument> docs = selected.get("ha_$()+-000");
+        final Collection<LocalDocument> docs = selected.get("ha_$()+-000");
         assertTrue("Should find js file in database.", Iterables.any(docs, selectedFile(d2doc1)));
     }
 
     @Test
     public void shouldRejectUppercaseInDbNames() throws IOException {
         createTempFile("DATABASE/doc1.json");
-        final LocalDesignDocumentsSelector collector = new LocalDesignDocumentsSelector(tempDir.getRoot(), log);
-        final Multimap<String, LocalDesignDocument> selected = collector.select();
+        final LocalDocumentsSelector collector = new LocalDocumentsSelector(tempDir.getRoot(), log);
+        final Multimap<String, LocalDocument> selected = collector.select();
         assertEquals("Should find no qualifying files.", 0, selected.size());
     }
 
     @Test
     public void sanifyDatabaseNameConvertsBackslashes() {
         final String name = "some\\path/full\\of\\backslashes";
-        assertEquals("some/path/full/of/backslashes", LocalDesignDocumentsSelector.sanifyDatabaseName(name));
+        assertEquals("some/path/full/of/backslashes", LocalDocumentsSelector.sanifyDatabaseName(name));
     }
 
     @Before
     public void loadJsonData() throws IOException {
-        final InputStream source = LocalDesignDocumentsSelectorTest.class.getResourceAsStream("/design_doc.js");
+        final InputStream source = LocalDocumentsSelectorTest.class.getResourceAsStream("/design_doc.js");
         try {
             final ByteArrayOutputStream target = new ByteArrayOutputStream();
             IOUtil.copy(source, target);
@@ -150,9 +150,9 @@ public class LocalDesignDocumentsSelectorTest {
         }
     }
 
-    private static Predicate<LocalDesignDocument> selectedFile(final File file) {
-        return new Predicate<LocalDesignDocument>() {
-            public boolean apply(@Nullable LocalDesignDocument doc) {
+    private static Predicate<LocalDocument> selectedFile(final File file) {
+        return new Predicate<LocalDocument>() {
+            public boolean apply(@Nullable LocalDocument doc) {
                 return null != doc && file.equals(doc.getFile());
             }
         };

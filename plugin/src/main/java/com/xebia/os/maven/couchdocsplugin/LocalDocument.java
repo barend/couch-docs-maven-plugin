@@ -27,10 +27,10 @@ import com.google.common.base.Preconditions;
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-class LocalDesignDocument extends DesignDocument {
+class LocalDocument extends Document {
     private final File file;
 
-    public LocalDesignDocument(File file) {
+    public LocalDocument(File file) {
         this.file = Preconditions.checkNotNull(file);
     }
 
@@ -55,7 +55,7 @@ class LocalDesignDocument extends DesignDocument {
 
     @Override
     public String toString() {
-        String result = "LocalDesignDocument[ " + file;
+        String result = "LocalDocument[ " + file;
         if (isLoaded()) {
             result += " , " + getId();
         }

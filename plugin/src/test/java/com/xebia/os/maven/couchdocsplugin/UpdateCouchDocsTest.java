@@ -47,16 +47,16 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.xebia.os.maven.couchdocsplugin.Config;
 import com.xebia.os.maven.couchdocsplugin.CouchFunctions;
-import com.xebia.os.maven.couchdocsplugin.LocalDesignDocument;
+import com.xebia.os.maven.couchdocsplugin.LocalDocument;
 import com.xebia.os.maven.couchdocsplugin.Progress;
-import com.xebia.os.maven.couchdocsplugin.RemoteDesignDocument;
-import com.xebia.os.maven.couchdocsplugin.UpdateDesignDocs;
+import com.xebia.os.maven.couchdocsplugin.RemoteDocument;
+import com.xebia.os.maven.couchdocsplugin.UpdateCouchDocs;
 import com.xebia.os.maven.couchdocsplugin.Config.ExistingDocs;
 import com.xebia.os.maven.couchdocsplugin.Config.UnknownDatabases;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class UpdateDesignDocsTest {
+public class UpdateCouchDocsTest {
 
     @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Mock private CouchFunctions couchFunctions;
@@ -68,14 +68,14 @@ public class UpdateDesignDocsTest {
         final Progress progress = new Progress(true, log);
 
         File docFile = newTempFile("/design_doc.js");
-        final LocalDesignDocument localDoc = new LocalDesignDocument(docFile);
-        Multimap<String, LocalDesignDocument> docs = ImmutableMultimap.of("database", localDoc);
+        final LocalDocument localDoc = new LocalDocument(docFile);
+        Multimap<String, LocalDocument> docs = ImmutableMultimap.of("database", localDoc);
 
         when(couchFunctions.isExistentDatabase("database")).thenReturn(false);
         when(couchFunctions.download("database", "_design/Demo"))
-            .thenReturn(Optional.<RemoteDesignDocument>absent());
+            .thenReturn(Optional.<RemoteDocument>absent());
 
-        new UpdateDesignDocs(config, progress, couchFunctions, docs).execute();
+        new UpdateCouchDocs(config, progress, couchFunctions, docs).execute();
 
         verify(couchFunctions).isExistentDatabase("database");
         verify(couchFunctions).createDatabase("database");
@@ -91,14 +91,14 @@ public class UpdateDesignDocsTest {
         final Progress progress = new Progress(true, log);
 
         File docFile = newTempFile("/design_doc.js");
-        final LocalDesignDocument localDoc = new LocalDesignDocument(docFile);
-        ListMultimap<String, LocalDesignDocument> docs = ImmutableListMultimap.of("database2", localDoc, "database", localDoc);
+        final LocalDocument localDoc = new LocalDocument(docFile);
+        ListMultimap<String, LocalDocument> docs = ImmutableListMultimap.of("database2", localDoc, "database", localDoc);
 
         when(couchFunctions.isExistentDatabase("database2")).thenReturn(false);
         when(couchFunctions.isExistentDatabase("database")).thenReturn(true);
-        when(couchFunctions.download("database", "_design/Demo")).thenReturn(Optional.<RemoteDesignDocument>absent());
+        when(couchFunctions.download("database", "_design/Demo")).thenReturn(Optional.<RemoteDocument>absent());
 
-        new UpdateDesignDocs(config, progress, couchFunctions, docs).execute();
+        new UpdateCouchDocs(config, progress, couchFunctions, docs).execute();
 
         verify(couchFunctions).isExistentDatabase("database2");
         verify(couchFunctions).isExistentDatabase("database");
@@ -114,14 +114,14 @@ public class UpdateDesignDocsTest {
         final Progress progress = new Progress(false, log);
 
         File docFile = newTempFile("/design_doc.js");
-        final LocalDesignDocument localDoc = new LocalDesignDocument(docFile);
-        ListMultimap<String, LocalDesignDocument> docs = ImmutableListMultimap.of("database2", localDoc, "database", localDoc);
+        final LocalDocument localDoc = new LocalDocument(docFile);
+        ListMultimap<String, LocalDocument> docs = ImmutableListMultimap.of("database2", localDoc, "database", localDoc);
 
         when(couchFunctions.isExistentDatabase("database2")).thenReturn(false);
         when(couchFunctions.isExistentDatabase("database")).thenReturn(true);
-        when(couchFunctions.download("database", "_design/Demo")).thenReturn(Optional.<RemoteDesignDocument>absent());
+        when(couchFunctions.download("database", "_design/Demo")).thenReturn(Optional.<RemoteDocument>absent());
 
-        new UpdateDesignDocs(config, progress, couchFunctions, docs).execute();
+        new UpdateCouchDocs(config, progress, couchFunctions, docs).execute();
 
         verify(log).error("Database \"database2\" does not exist.");
         verify(couchFunctions).isExistentDatabase("database2");
@@ -138,13 +138,13 @@ public class UpdateDesignDocsTest {
         final Progress progress = new Progress(true, log);
 
         File docFile = newTempFile("/design_doc.js");
-        final LocalDesignDocument localDoc = new LocalDesignDocument(docFile);
-        Multimap<String, LocalDesignDocument> docs = ImmutableMultimap.of("database", localDoc);
+        final LocalDocument localDoc = new LocalDocument(docFile);
+        Multimap<String, LocalDocument> docs = ImmutableMultimap.of("database", localDoc);
 
         when(couchFunctions.isExistentDatabase("database")).thenReturn(false);
 
         try {
-            new UpdateDesignDocs(config, progress, couchFunctions, docs).execute();
+            new UpdateCouchDocs(config, progress, couchFunctions, docs).execute();
             fail();
         } catch (RuntimeException e) {
             assertNotNull(e);
@@ -160,14 +160,14 @@ public class UpdateDesignDocsTest {
         final Config config = new Config(ExistingDocs.UPDATE, UnknownDatabases.FAIL);
         final Progress progress = new Progress(true, log);
 
-        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_design_doc.js"));
-        final LocalDesignDocument localDoc = new LocalDesignDocument(newTempFile("/design_doc.js"));
-        Multimap<String, LocalDesignDocument> docs = ImmutableMultimap.of("database", localDoc);
+        final RemoteDocument remoteDoc = new RemoteDocument(read("/remote_design_doc.js"));
+        final LocalDocument localDoc = new LocalDocument(newTempFile("/design_doc.js"));
+        Multimap<String, LocalDocument> docs = ImmutableMultimap.of("database", localDoc);
 
         when(couchFunctions.isExistentDatabase("database")).thenReturn(true);
         when(couchFunctions.download("database", "_design/Demo")).thenReturn(Optional.of(remoteDoc));
 
-        new UpdateDesignDocs(config, progress, couchFunctions, docs).execute();
+        new UpdateCouchDocs(config, progress, couchFunctions, docs).execute();
 
         verify(couchFunctions).isExistentDatabase("database");
         verify(couchFunctions).download("database", "_design/Demo");
@@ -181,14 +181,14 @@ public class UpdateDesignDocsTest {
         final Config config = new Config(ExistingDocs.REPLACE, UnknownDatabases.FAIL);
         final Progress progress = new Progress(true, log);
 
-        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_design_doc.js"));
-        final LocalDesignDocument localDoc = new LocalDesignDocument(newTempFile("/design_doc.js"));
-        Multimap<String, LocalDesignDocument> docs = ImmutableMultimap.of("database", localDoc);
+        final RemoteDocument remoteDoc = new RemoteDocument(read("/remote_design_doc.js"));
+        final LocalDocument localDoc = new LocalDocument(newTempFile("/design_doc.js"));
+        Multimap<String, LocalDocument> docs = ImmutableMultimap.of("database", localDoc);
 
         when(couchFunctions.isExistentDatabase("database")).thenReturn(true);
         when(couchFunctions.download("database", "_design/Demo")).thenReturn(Optional.of(remoteDoc));
 
-        new UpdateDesignDocs(config, progress, couchFunctions, docs).execute();
+        new UpdateCouchDocs(config, progress, couchFunctions, docs).execute();
 
         verify(couchFunctions).isExistentDatabase("database");
         verify(couchFunctions).download("database", "_design/Demo");
@@ -203,14 +203,14 @@ public class UpdateDesignDocsTest {
         final Config config = new Config(ExistingDocs.KEEP, UnknownDatabases.FAIL);
         final Progress progress = new Progress(true, log);
 
-        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_design_doc.js"));
-        final LocalDesignDocument localDoc = new LocalDesignDocument(newTempFile("/design_doc.js"));
-        Multimap<String, LocalDesignDocument> docs = ImmutableMultimap.of("database", localDoc);
+        final RemoteDocument remoteDoc = new RemoteDocument(read("/remote_design_doc.js"));
+        final LocalDocument localDoc = new LocalDocument(newTempFile("/design_doc.js"));
+        Multimap<String, LocalDocument> docs = ImmutableMultimap.of("database", localDoc);
 
         when(couchFunctions.isExistentDatabase("database")).thenReturn(true);
         when(couchFunctions.download("database", "_design/Demo")).thenReturn(Optional.of(remoteDoc));
 
-        new UpdateDesignDocs(config, progress, couchFunctions, docs).execute();
+        new UpdateCouchDocs(config, progress, couchFunctions, docs).execute();
 
         verify(couchFunctions).isExistentDatabase("database");
         verify(couchFunctions).download("database", "_design/Demo");
@@ -222,15 +222,15 @@ public class UpdateDesignDocsTest {
         final Config config = new Config(ExistingDocs.FAIL, UnknownDatabases.FAIL);
         final Progress progress = new Progress(true, log);
 
-        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_design_doc.js"));
-        final LocalDesignDocument localDoc = new LocalDesignDocument(newTempFile("/design_doc.js"));
-        Multimap<String, LocalDesignDocument> docs = ImmutableMultimap.of("database", localDoc);
+        final RemoteDocument remoteDoc = new RemoteDocument(read("/remote_design_doc.js"));
+        final LocalDocument localDoc = new LocalDocument(newTempFile("/design_doc.js"));
+        Multimap<String, LocalDocument> docs = ImmutableMultimap.of("database", localDoc);
 
         when(couchFunctions.isExistentDatabase("database")).thenReturn(true);
         when(couchFunctions.download("database", "_design/Demo")).thenReturn(Optional.of(remoteDoc));
 
         try {
-            new UpdateDesignDocs(config, progress, couchFunctions, docs).execute();
+            new UpdateCouchDocs(config, progress, couchFunctions, docs).execute();
             fail();
         } catch (RuntimeException e) {
             assertNotNull(e);
@@ -250,14 +250,14 @@ public class UpdateDesignDocsTest {
         final Config config = new Config(ExistingDocs.FAIL, UnknownDatabases.FAIL);
         final Progress progress = new Progress(false, log);
 
-        final RemoteDesignDocument remoteDoc = new RemoteDesignDocument(read("/remote_design_doc.js"));
-        final LocalDesignDocument localDoc = new LocalDesignDocument(newTempFile("/design_doc.js"));
-        Multimap<String, LocalDesignDocument> docs = ImmutableMultimap.of("database", localDoc);
+        final RemoteDocument remoteDoc = new RemoteDocument(read("/remote_design_doc.js"));
+        final LocalDocument localDoc = new LocalDocument(newTempFile("/design_doc.js"));
+        Multimap<String, LocalDocument> docs = ImmutableMultimap.of("database", localDoc);
 
         when(couchFunctions.isExistentDatabase("database")).thenReturn(true);
         when(couchFunctions.download("database", "_design/Demo")).thenReturn(Optional.of(remoteDoc));
 
-        new UpdateDesignDocs(config, progress, couchFunctions, docs).execute();
+        new UpdateCouchDocs(config, progress, couchFunctions, docs).execute();
 
         verify(couchFunctions).isExistentDatabase("database");
         verify(couchFunctions).download("database", "_design/Demo");
@@ -266,7 +266,7 @@ public class UpdateDesignDocsTest {
 
     private File newTempFile(final String source) throws IOException, FileNotFoundException {
         File result = temporaryFolder.newFile();
-        final InputStream dummyData = UpdateDesignDocsTest.class.getResourceAsStream(source);
+        final InputStream dummyData = UpdateCouchDocsTest.class.getResourceAsStream(source);
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(result);
@@ -279,7 +279,7 @@ public class UpdateDesignDocsTest {
     }
 
     private byte[] read(final String contents) throws IOException, FileNotFoundException {
-        final InputStream dummyData = UpdateDesignDocsTest.class.getResourceAsStream(contents);
+        final InputStream dummyData = UpdateCouchDocsTest.class.getResourceAsStream(contents);
         if (dummyData == null) {
             throw new FileNotFoundException();
         }

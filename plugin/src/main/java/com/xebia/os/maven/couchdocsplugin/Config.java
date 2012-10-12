@@ -40,7 +40,7 @@ class Config {
     }
 
     /**
-     * Indicates how to handle an existing design document.
+     * Indicates how to handle an existing document.
      */
     static enum ExistingDocs {
 

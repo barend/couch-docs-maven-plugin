@@ -28,16 +28,16 @@ import com.google.common.base.Preconditions;
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-class RemoteDesignDocument extends DesignDocument {
+class RemoteDocument extends Document {
 
-    public RemoteDesignDocument(InputStream data) throws IOException, DocumentValidationException {
+    public RemoteDocument(InputStream data) throws IOException, DocumentValidationException {
         Preconditions.checkNotNull(data, "data argument cannot be null");
         final JsonParser parser = getJsonFactory().createJsonParser(data);
         parser.configure(Feature.AUTO_CLOSE_SOURCE, true);
         initRootNode(parser);
     }
 
-    public RemoteDesignDocument(byte[] data) throws IOException, DocumentValidationException {
+    public RemoteDocument(byte[] data) throws IOException, DocumentValidationException {
         Preconditions.checkNotNull(data, "data argument cannot be null");
         final JsonParser parser = getJsonFactory().createJsonParser(data);
         initRootNode(parser);
@@ -45,6 +45,6 @@ class RemoteDesignDocument extends DesignDocument {
 
     @Override
     public String toString() {
-        return "RemoteDesignDocument[ " + getId() + " ]";
+        return "RemoteDocument[ " + getId() + " ]";
     }
 }

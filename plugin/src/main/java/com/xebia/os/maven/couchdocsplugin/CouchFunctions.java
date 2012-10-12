@@ -27,7 +27,7 @@ import com.google.common.base.Optional;
 interface CouchFunctions {
     boolean isExistentDatabase(String databaseName) throws IOException;
     void createDatabase(String databaseName) throws IOException;
-    Optional<RemoteDesignDocument> download(String databaseName, String id) throws IOException;
-    void upload(String databaseName, LocalDesignDocument localDocument) throws IOException;
-    void delete(String databaseName, RemoteDesignDocument remoteDocument) throws IOException;
+    Optional<RemoteDocument> download(String databaseName, String id) throws IOException;
+    void upload(String databaseName, LocalDocument localDocument) throws IOException;
+    void delete(String databaseName, RemoteDocument remoteDocument) throws IOException;
 }

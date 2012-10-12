@@ -96,21 +96,21 @@ class CouchFunctionsImpl implements CouchFunctions {
     }
 
     @Override
-    public Optional<RemoteDesignDocument> download(String databaseName, String id) throws IOException {
+    public Optional<RemoteDocument> download(String databaseName, String id) throws IOException {
         String path = databaseName + '/' + id;
         HttpURLConnection urc = createConnection(path);
         urc.setRequestMethod("GET");
         if (HTTP_NOTFOUND == urc.getResponseCode()) {
             return Optional.absent();
         } else if (HTTP_OK == urc.getResponseCode()) {
-            return Optional.of(new RemoteDesignDocument(urc.getInputStream()));
+            return Optional.of(new RemoteDocument(urc.getInputStream()));
         } else {
             throw databaseException(urc);
         }
     }
 
     @Override
-    public void upload(String databaseName, LocalDesignDocument localDocument) throws IOException {
+    public void upload(String databaseName, LocalDocument localDocument) throws IOException {
         String path = databaseName + '/' + localDocument.getId();
 
         String payload = localDocument.getJson();
@@ -135,7 +135,7 @@ class CouchFunctionsImpl implements CouchFunctions {
     }
 
     @Override
-    public void delete(String databaseName, RemoteDesignDocument remoteDocument) throws IOException {
+    public void delete(String databaseName, RemoteDocument remoteDocument) throws IOException {
         String path = databaseName + '/' + remoteDocument.getId() + "?rev=" + remoteDocument.getRev().get();
         HttpURLConnection urc = createConnection(path);
         urc.setRequestMethod("DELETE");

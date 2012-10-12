@@ -25,29 +25,33 @@ import java.io.InputStream;
 import org.codehaus.plexus.util.IOUtil;
 import org.junit.Test;
 
-import com.xebia.os.maven.couchdocsplugin.DocumentValidationException;
-import com.xebia.os.maven.couchdocsplugin.RemoteDesignDocument;
+import com.xebia.os.maven.couchdocsplugin.RemoteDocument;
 
 
-public class RemoteDesignDocumentTest {
+public class RemoteDocumentTest {
 
-    @Test(expected = DocumentValidationException.class)
+    /**
+     * Earlier versions of the plugin allowed only document id's starting with
+     * {@code _design/}; this restriction has been lifted.
+     */
+    @Test
     public void loadShouldEnsureDocIsADesignDoc() throws IOException {
         final String fileContents = "/not_a_design_doc.js";
         final byte[] input = read(fileContents);
-        new RemoteDesignDocument(input);
+        final RemoteDocument rd = new RemoteDocument(input);
+        assertThat(rd.getId(), is("This id does not start with \"_design/\"."));
     }
 
     @Test
     public void loadShouldAcceptValidDesignDocs() throws IOException {
         final byte[] input = read("/remote_design_doc.js");
-        final RemoteDesignDocument ldd = new RemoteDesignDocument(input);
+        final RemoteDocument ldd = new RemoteDocument(input);
         assertThat(ldd.getId(), is("_design/Demo"));
         assertThat(ldd.getRev(), is(notNullValue()));
     }
 
     private byte[] read(final String contents) throws IOException, FileNotFoundException {
-        final InputStream dummyData = UpdateDesignDocsTest.class.getResourceAsStream(contents);
+        final InputStream dummyData = UpdateCouchDocsTest.class.getResourceAsStream(contents);
         if (dummyData == null) {
             throw new FileNotFoundException();
         }

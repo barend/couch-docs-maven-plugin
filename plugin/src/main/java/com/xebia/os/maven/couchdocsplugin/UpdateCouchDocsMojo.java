@@ -25,9 +25,9 @@ import org.apache.maven.plugin.logging.Log;
 import com.google.common.collect.Multimap;
 
 /**
- * Update design documents in CouchDB.
+ * Update documents in CouchDB.
  *
- * Use this plugin to ensure the design documents in a CouchDb instance are in sync with those in the
+ * Use this plugin to ensure the documents in a CouchDb instance are in sync with those in the
  * project resources. This plugin compares the documents found in CouchDB to those found in the source
  * directory and if any differences exist it can either ignore them, fail the build, or bring CouchDB
  * in sync with the source directory.
@@ -36,7 +36,7 @@ import com.google.common.collect.Multimap;
  *
  * @author Barend Garvelink <bgarvelink@xebia.com>
  */
-public class UpdateDesignDocsMojo extends AbstractMojo {
+public class UpdateCouchDocsMojo extends AbstractMojo {
 
     /**
      * The URL to the CouchDB instance.
@@ -45,20 +45,20 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
      * requires authentication, the username and password should be provided in the URL
      * using the http://username:password@hostname:port syntax.</p>
      *
-     * @parameter expression="${designdocs.couchUrl}" default-value="http://localhost:5984"
+     * @parameter expression="${couchdocs.couchUrl}" default-value="http://localhost:5984"
      * @required
      */
     private URL couchUrl;
 
     /**
-     * The directory where design documents are kept.
+     * The source directory where documents are kept.
      *
      * <p>This directory should contain a sub directory for every database in your
-     * couch instance. This sub directory, in turn, contains the design docs.
+     * couch instance. This sub directory, in turn, contains the JSON docs.
      * Couch database names can include slashes. You can use further sub directories to
      * express such database names.</p>
      *
-     * @parameter expression="${designdocs.baseDir}"
+     * @parameter expression="${couchdocs.baseDir}"
      *            default-value="src/main/couchdb"
      * @required
      */
@@ -70,7 +70,7 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
      *
      * <dl>
      * <dt>CREATE</dt>
-     * <dd>Create the database and upload the design docs.</dd>
+     * <dd>Create the database and upload the documents.</dd>
      *
      * <dt>SKIP</dt>
      * <dd>Skip over this database, don't upload anything.</dd>
@@ -79,7 +79,7 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
      * <dd>The build fails.</dd>
      * </dl>
      *
-     * @parameter expression="${designdocs.unknownDatabases}" default-value="CREATE"
+     * @parameter expression="${couchdocs.unknownDatabases}" default-value="CREATE"
      */
     private String unknownDatabases;
 
@@ -104,7 +104,7 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
      * <dd>The build fails.</dd>
      * </dl>
      *
-     * @parameter expression="${designdocs.existingDocs}" default-value="UPDATE"
+     * @parameter expression="${couchdocs.existingDocs}" default-value="UPDATE"
      */
     private String existingDocs;
 
@@ -112,19 +112,19 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
      * If set to true, the build breaks when an error is encountered. If set to false, a
      * warning is logged in such case.
      *
-     * @parameter expression="${designdocs.failOnError}" default-value=true
+     * @parameter expression="${couchdocs.failOnError}" default-value=true
      */
     private boolean failOnError;
 
     /**
      * Skip execution if true, just like "-Dmaven.test.skip=true".
      *
-     * @parameter expression="${designdocs.skip}"
+     * @parameter expression="${couchdocs.skip}"
      */
     private boolean skip;
 
     /**
-     * The include pattern to match design documents.
+     * The include pattern for finding documents in baseDir.
      *
      * <p>Default: {@code ** /*.json} and {@code ** /*.js}.</p>
      *
@@ -133,7 +133,7 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     private String[] includes = new String[] { "**/*.json", "**/*.js" };
 
     /**
-     * The exclude pattern to match design documents.
+     * The exclude pattern for (not) finding documents in baseDir.
      *
      * <p>Default: null</p>
      *
@@ -144,23 +144,23 @@ public class UpdateDesignDocsMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException
     {
         if (skip) {
-            getLog().info("Detected '-Ddesigndocs.skip', skipping execution.");
+            getLog().info("Detected '-Dcouchdocs.skip', skipping execution.");
             return;
         }
         dumpConfig();
         try {
-            final Multimap<String, LocalDesignDocument> localDocuments = findLocalDesignDocuments();
+            final Multimap<String, LocalDocument> localDocuments = findLocalDocuments();
             Config config = new Config(existingDocs, unknownDatabases);
             Progress progress = new Progress(failOnError, getLog());
             CouchFunctions couch = new CouchFunctionsImpl(couchUrl);
-            new UpdateDesignDocs(config, progress, couch, localDocuments).execute();
+            new UpdateCouchDocs(config, progress, couch, localDocuments).execute();
         } catch (RuntimeException e) {
             throw new MojoExecutionException(e.toString(), e);
         }
     }
 
-    private Multimap<String, LocalDesignDocument> findLocalDesignDocuments() throws MojoExecutionException {
-        final LocalDesignDocumentsSelector docsCollector = new LocalDesignDocumentsSelector(baseDir, getLog(), includes, excludes);
+    private Multimap<String, LocalDocument> findLocalDocuments() throws MojoExecutionException {
+        final LocalDocumentsSelector docsCollector = new LocalDocumentsSelector(baseDir, getLog(), includes, excludes);
         try {
             return docsCollector.select();
         } catch (IOException e) {

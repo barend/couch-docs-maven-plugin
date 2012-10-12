@@ -31,24 +31,28 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import com.xebia.os.maven.couchdocsplugin.DocumentValidationException;
-import com.xebia.os.maven.couchdocsplugin.LocalDesignDocument;
+import com.xebia.os.maven.couchdocsplugin.LocalDocument;
 
 
-public class LocalDesignDocumentTest {
+public class LocalDocumentTest {
     @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Test(expected = DocumentValidationException.class)
-    public void loadShouldEnsureDocIsADesignDoc() throws IOException {
+    /**
+     * Earlier versions of the plugin allowed only document id's starting with
+     * {@code _design/}; this restriction has been lifted.
+     */
+    @Test
+    public void loadShouldAllowNonDesignDocs() throws IOException {
         final File input = newTempFile("/not_a_design_doc.js");
-        final LocalDesignDocument ldd = new LocalDesignDocument(input);
+        final LocalDocument ldd = new LocalDocument(input);
         ldd.load();
+        assertThat(ldd.getId(), is("This id does not start with \"_design/\"."));
     }
 
     @Test
     public void loadShouldAcceptValidDesignDocs() throws IOException {
         final File input = newTempFile("/design_doc.js");
-        final LocalDesignDocument ldd = new LocalDesignDocument(input);
+        final LocalDocument ldd = new LocalDocument(input);
         assertFalse(ldd.isLoaded());
         ldd.load();
         assertTrue(ldd.isLoaded());
@@ -58,7 +62,7 @@ public class LocalDesignDocumentTest {
 
     private File newTempFile(final String source) throws IOException, FileNotFoundException {
         File result = temporaryFolder.newFile();
-        final InputStream dummyData = UpdateDesignDocsTest.class.getResourceAsStream(source);
+        final InputStream dummyData = UpdateCouchDocsTest.class.getResourceAsStream(source);
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(result);

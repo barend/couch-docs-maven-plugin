@@ -42,15 +42,15 @@ import org.junit.runner.RunWith;
 import com.google.common.base.Optional;
 import com.xebia.os.maven.couchdocsplugin.Config;
 import com.xebia.os.maven.couchdocsplugin.CouchFunctionsImpl;
-import com.xebia.os.maven.couchdocsplugin.RemoteDesignDocument;
-import com.xebia.os.maven.couchdocsplugin.UpdateDesignDocsMojo;
+import com.xebia.os.maven.couchdocsplugin.RemoteDocument;
+import com.xebia.os.maven.couchdocsplugin.UpdateCouchDocsMojo;
 import com.xebia.os.maven.couchdocsplugin.junit.ConditionalTestRunner;
 import com.xebia.os.maven.couchdocsplugin.junit.EnvironmentCondition;
 
 
 @RunWith(ConditionalTestRunner.class)
 @EnvironmentCondition(name = "COUCHDB_INTEGRATION_TESTS", kind = EnvironmentCondition.Kind.ENVIRONMENT_VARIABLE)
-public class UpdateDesignDocsMojoTest {
+public class UpdateCouchDocsMojoTest {
 
     private static final String COUCH_URL = "http://admin:admin@localhost:5984";
     private static final String DATABASE1 = "database1-" + new SecureRandom().nextLong();
@@ -62,7 +62,7 @@ public class UpdateDesignDocsMojoTest {
     private Log log = new SystemStreamLog();
 
     @Before
-    public void copyDesignDocs() throws IOException {
+    public void copyLocalDocsToTempDir() throws IOException {
         newTempFile("/design_doc.js", DATABASE1, "design1.js");
         newTempFile("/design_doc.js", DATABASE2, "ignored.js");
         newTempFile("/design_doc.js", DATABASE3, "design3.js");
@@ -80,7 +80,7 @@ public class UpdateDesignDocsMojoTest {
     @Test
     public void runMojo() throws IOException, MojoExecutionException {
         final URL couchUrl = new URL(COUCH_URL);
-        final UpdateDesignDocsMojo mojo = new UpdateDesignDocsMojo();
+        final UpdateCouchDocsMojo mojo = new UpdateCouchDocsMojo();
         mojo.setBaseDir(temporaryFolder.getRoot());
         mojo.setCouchUrl(couchUrl);
         mojo.setExcludes(new String[] { "**/ignored.js" });
@@ -96,14 +96,14 @@ public class UpdateDesignDocsMojoTest {
 
         // CouchFuncitonsImpl has been tested separately, use it here to verify the results.
         CouchFunctionsImpl couch = new CouchFunctionsImpl(couchUrl);
-        final Optional<RemoteDesignDocument> database1design = couch.download(DATABASE1, "_design/Demo");
-        assertTrue("Database 1 design should have been uploaded.", database1design.isPresent());
+        final Optional<RemoteDocument> database1design = couch.download(DATABASE1, "_design/Demo");
+        assertTrue("Database 1 document should have been uploaded.", database1design.isPresent());
 
-        final Optional<RemoteDesignDocument> database2design = couch.download(DATABASE2, "_design/Demo");
-        assertFalse("Database 2 design should have been ignored.", database2design.isPresent());
+        final Optional<RemoteDocument> database2design = couch.download(DATABASE2, "_design/Demo");
+        assertFalse("Database 2 document should have been ignored.", database2design.isPresent());
 
-        final Optional<RemoteDesignDocument> database3design = couch.download(DATABASE3, "_design/Demo");
-        assertTrue("Database 3 design should have been uploaded.", database3design.isPresent());
+        final Optional<RemoteDocument> database3design = couch.download(DATABASE3, "_design/Demo");
+        assertTrue("Database 3 document should have been uploaded.", database3design.isPresent());
     }
 
 
@@ -113,7 +113,7 @@ public class UpdateDesignDocsMojoTest {
         File result = new File(dir, name);
         result.createNewFile();
 
-        final InputStream dummyData = UpdateDesignDocsMojoTest.class.getResourceAsStream(source);
+        final InputStream dummyData = UpdateCouchDocsMojoTest.class.getResourceAsStream(source);
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(result);

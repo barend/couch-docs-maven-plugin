@@ -28,11 +28,11 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 /**
- * Base class for CouchDB design document handling.
+ * Base class for CouchDB document handling.
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-abstract class DesignDocument {
+abstract class Document {
 
     private static final JsonFactory JSON_FACTORY = createJsonFactory();
 
@@ -48,17 +48,12 @@ abstract class DesignDocument {
 
         ObjectNode rootNode = ((ObjectNode) parsed);
 
-        // All design documents have an _id...
+        // All our documents must have an _id.
         final JsonNode idNode = rootNode.findPath("_id");
         if (!idNode.isTextual()) {
             throw new DocumentValidationException("The document's _id node is missing or not a string value.");
         }
 
-        // ...that starts with "_design/"
-        final String id = idNode.asText();
-        if (!id.startsWith("_design/")) {
-            throw new DocumentValidationException("The value \"" + id + "\" of the document's _id node does begin with \"_design/\".");
-        }
         jsonRootNode = rootNode;
     }
 
