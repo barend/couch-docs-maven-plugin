@@ -3,7 +3,7 @@
 ## Introduction
 
 This is a Maven plugin to update a [CouchDB][couch] instance with design
-documents defined in the project resources. This scratches an itch I has just
+documents defined in the project resources. This scratches an itch I had just
 prior to a nine hour flight, which is probably how a lot of open source
 projects are conceived :-).
 
@@ -116,10 +116,11 @@ chain and specific filesystem structure. This plugin merely pushes documents
 from a local filesystem into a CouchDB instance. This is a subset of the stuff
 couchapp gives you. Use whichever fits your needs best.
 
-## License
+## Copyright and License
 
-This software can be used under the terms of the Apache 2.0 License. You can
-obtain a copy of this license from the following url:
+This software is copyright 2012 Xebia Nederland B.V. This software can be used
+under the terms of the Apache 2.0 License. You can obtain a copy of this license
+from the following url:
 
 [http://www.apache.org/licenses/LICENSE-2.0][apache2]
 
