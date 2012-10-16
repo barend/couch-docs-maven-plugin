@@ -18,7 +18,6 @@ package com.xebia.os.maven.couchdocsplugin;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.DirectoryScanner;
@@ -33,7 +32,6 @@ import com.google.common.collect.Multimap;
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
 class LocalDocumentsSelector {
-    private static final Pattern COUCH_DATABASENAME_WHITELIST = Pattern.compile("[a-z0-9_$()+-/]+");
     private final File baseDir;
     private final Log log;
     private final String[] includes;
@@ -72,12 +70,12 @@ class LocalDocumentsSelector {
         for (String file : scanner.getIncludedFiles()) {
             String databaseName = new File(file).getParent();
             if (databaseName != null) {
-                databaseName = sanifyDatabaseName(databaseName);
-                if (databaseName != null) {
-                    log.debug("Found document " + file + " in database " + databaseName);
-                    result.put(databaseName, new LocalDocument(new File(baseDir, file)));
+                String cleanDatabaseName = sanifyDatabaseName(databaseName);
+                if (cleanDatabaseName != null) {
+                    log.debug("Found document " + file + " in database " + cleanDatabaseName);
+                    result.put(cleanDatabaseName, new LocalDocument(new File(baseDir, file)));
                 } else {
-                    log.warn("Ignoring document " + file + " because its directory path contains characters that aren't valid in a Couch database name.");
+                    log.warn("Ignoring document " + file + " because \"" + databaseName + "\" is an invalid Couch database name.");
                 }
             } else {
                 log.debug("Ingoring document " + file + " in database null");
@@ -97,6 +95,6 @@ class LocalDocumentsSelector {
      */
     public static String sanifyDatabaseName(String databaseName) {
         String name = databaseName.replace('\\', '/');
-        return (COUCH_DATABASENAME_WHITELIST.matcher(name).matches() ? name : null);
+        return (Document.isValidDabaseName(name) ? name : null);
     }
 }

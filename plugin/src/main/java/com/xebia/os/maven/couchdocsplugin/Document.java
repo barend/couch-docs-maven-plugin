@@ -16,6 +16,7 @@
 package com.xebia.os.maven.couchdocsplugin;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
@@ -34,6 +35,7 @@ import com.google.common.base.Preconditions;
  */
 abstract class Document {
 
+    private static final Pattern COUCH_DATABASENAME_PATTERN = Pattern.compile("[a-z][a-z0-9_$()+-/]+");
     private static final JsonFactory JSON_FACTORY = createJsonFactory();
 
     private ObjectNode jsonRootNode;
@@ -81,6 +83,10 @@ abstract class Document {
 
     protected JsonFactory getJsonFactory() {
         return JSON_FACTORY;
+    }
+
+    public static boolean isValidDabaseName(String databaseName) {
+        return COUCH_DATABASENAME_PATTERN.matcher(databaseName).matches();
     }
 
     private static JsonFactory createJsonFactory() {

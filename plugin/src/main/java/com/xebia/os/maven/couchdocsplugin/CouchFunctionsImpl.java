@@ -23,6 +23,7 @@ import java.net.URL;
 
 import org.codehaus.plexus.util.Base64;
 import org.codehaus.plexus.util.IOUtil;
+import org.sonatype.inject.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
@@ -97,8 +98,7 @@ class CouchFunctionsImpl implements CouchFunctions {
 
     @Override
     public Optional<RemoteDocument> download(String databaseName, String id) throws IOException {
-        String path = databaseName + '/' + id;
-        HttpURLConnection urc = createConnection(path);
+        HttpURLConnection urc = createConnection(databaseName, id);
         urc.setRequestMethod("GET");
         if (HTTP_NOTFOUND == urc.getResponseCode()) {
             return Optional.absent();
@@ -111,12 +111,10 @@ class CouchFunctionsImpl implements CouchFunctions {
 
     @Override
     public void upload(String databaseName, LocalDocument localDocument) throws IOException {
-        String path = databaseName + '/' + localDocument.getId();
-
         String payload = localDocument.getJson();
         byte[] body = payload.getBytes(Charsets.UTF_8);
 
-        HttpURLConnection urc = createConnection(path);
+        HttpURLConnection urc = createConnection(databaseName, localDocument.getId());
         urc.setRequestMethod("PUT");
         urc.setRequestProperty("Content-Type", "application/json;charset=utf8");
         urc.setRequestProperty("Content-Length", Integer.toString(body.length));
@@ -136,15 +134,20 @@ class CouchFunctionsImpl implements CouchFunctions {
 
     @Override
     public void delete(String databaseName, RemoteDocument remoteDocument) throws IOException {
-        String path = databaseName + '/' + remoteDocument.getId() + "?rev=" + remoteDocument.getRev().get();
-        HttpURLConnection urc = createConnection(path);
+        String documentAndQuery = remoteDocument.getId() + "?rev=" + remoteDocument.getRev().get();
+        HttpURLConnection urc = createConnection(databaseName, documentAndQuery);
         urc.setRequestMethod("DELETE");
         if (HTTP_OK != urc.getResponseCode()) {
             throw databaseException(urc);
         }
     }
 
-    private HttpURLConnection createConnection(String suffix) throws IOException {
+    private HttpURLConnection createConnection(String databaseName) throws IOException {
+        return createConnection(databaseName, null);
+    }
+
+    private HttpURLConnection createConnection(String databaseName, @Nullable String documentAndQuery) throws IOException {
+        String suffix = createDatabaseUrlSuffix(databaseName, documentAndQuery);
         HttpURLConnection urc = (HttpURLConnection) new URL(baseUrl, suffix).openConnection();
         urc.setConnectTimeout(30000);
         urc.setReadTimeout(120000);
@@ -154,6 +157,36 @@ class CouchFunctionsImpl implements CouchFunctions {
             urc.setRequestProperty("Authorization", authorization);
         }
         return urc;
+    }
+
+    private static String createDatabaseUrlSuffix(String databaseName, @Nullable String documentAndQuery) {
+        Preconditions.checkArgument(Document.isValidDabaseName(databaseName), "The string \"" + databaseName + "\" is an invalid Couch database name.");
+
+        // URLEncode the '/' and '+' characters in the database name. Skip the trailing slash,
+        // because encoding that would make for a very confusing database name.
+        final int max = databaseName.endsWith("/") ? databaseName.length() - 1 : databaseName.length();
+        final StringBuilder result = new StringBuilder(64);
+        for (int i = 0; i < max; i++) {
+            final char c = databaseName.charAt(i);
+            switch (c) {
+            case '+':
+                result.append("%2B");
+                break;
+            case '/':
+                result.append("%2F");
+                break;
+            default:
+                result.append(c);
+            }
+        }
+
+        // The trailing slash is documented in http://wiki.apache.org/couchdb/HTTP_database_API as mandatory.
+        result.append('/');
+
+        if (null != documentAndQuery) {
+            result.append(documentAndQuery);
+        }
+        return result.toString();
     }
 
     private static CouchDatabaseException databaseException(HttpURLConnection urc) throws IOException {

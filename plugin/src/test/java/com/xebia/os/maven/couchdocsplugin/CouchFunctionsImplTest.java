@@ -132,12 +132,16 @@ public class CouchFunctionsImplTest {
 
     @Test
     public void shouldWrapServerErrors() throws IOException {
+        final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
+        final String databaseName = "test-database-" + (new SecureRandom()).nextLong();
         try {
-            final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
-            impl.createDatabase("Database-Names-Cannot-Have-Capital-Letters");
+            impl.createDatabase(databaseName);
+            impl.createDatabase(databaseName);
             fail("An exception should have been thrown.");
         } catch (CouchDatabaseException e) {
-            assertEquals(400, e.getResponseCode());
+            assertEquals(412, e.getResponseCode());
+        } finally {
+            impl.deleteDatabase(databaseName);
         }
     }
 
