@@ -32,7 +32,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-
 import com.google.common.base.Optional;
 import com.xebia.os.maven.couchdocsplugin.CouchDatabaseException;
 import com.xebia.os.maven.couchdocsplugin.CouchFunctionsImpl;
@@ -158,7 +157,7 @@ public class CouchFunctionsImplTest {
             impl.createDatabase(databaseName);
             fail("An exception should have been thrown.");
         } catch (CouchDatabaseException e) {
-            assertEquals(412, e.getResponseCode());
+            assertEquals("There should be a 412 response code in " + e, 412, e.getResponseCode());
         } finally {
             impl.deleteDatabase(databaseName);
         }

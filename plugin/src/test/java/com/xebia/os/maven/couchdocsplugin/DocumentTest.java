@@ -18,6 +18,9 @@ package com.xebia.os.maven.couchdocsplugin;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+
+import org.codehaus.jackson.JsonParser;
 import org.junit.Test;
 
 /**
@@ -39,5 +42,22 @@ public class DocumentTest {
         assertTrue("Database names can contain the + character.", Document.isValidDabaseName("d+"));
         assertTrue("Database names can contain the _ character.", Document.isValidDabaseName("d_"));
         assertTrue("Database names can contain the / character.", Document.isValidDabaseName("d/d"));
+    }
+
+    @Test(expected = DocumentValidationException.class)
+    public void rootNodeMustBeObject() throws IOException {
+        new InlineDocument("[ {}, {} ]");
+    }
+
+    @Test(expected = DocumentValidationException.class)
+    public void idNodeMustBeTextNode() throws IOException {
+        new InlineDocument("{ \"_id\": true }");
+    }
+
+    private static class InlineDocument extends Document {
+        public InlineDocument(String content) throws IOException {
+            JsonParser parser = getJsonFactory().createJsonParser(content);
+            initRootNode(parser);
+        }
     }
 }
