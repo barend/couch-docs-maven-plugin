@@ -17,9 +17,11 @@ package com.xebia.os.maven.couchdocsplugin;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import org.codehaus.plexus.util.Base64;
 import org.codehaus.plexus.util.IOUtil;
@@ -98,7 +100,7 @@ class CouchFunctionsImpl implements CouchFunctions {
 
     @Override
     public Optional<RemoteDocument> download(String databaseName, String id) throws IOException {
-        HttpURLConnection urc = createConnection(databaseName, id);
+        HttpURLConnection urc = createConnection(databaseName, urlEncode(id));
         urc.setRequestMethod("GET");
         if (HTTP_NOTFOUND == urc.getResponseCode()) {
             return Optional.absent();
@@ -114,7 +116,7 @@ class CouchFunctionsImpl implements CouchFunctions {
         String payload = localDocument.getJson();
         byte[] body = payload.getBytes(Charsets.UTF_8);
 
-        HttpURLConnection urc = createConnection(databaseName, localDocument.getId());
+        HttpURLConnection urc = createConnection(databaseName, urlEncode(localDocument.getId()));
         urc.setRequestMethod("PUT");
         urc.setRequestProperty("Content-Type", "application/json;charset=utf8");
         urc.setRequestProperty("Content-Length", Integer.toString(body.length));
@@ -134,7 +136,7 @@ class CouchFunctionsImpl implements CouchFunctions {
 
     @Override
     public void delete(String databaseName, RemoteDocument remoteDocument) throws IOException {
-        String documentAndQuery = remoteDocument.getId() + "?rev=" + remoteDocument.getRev().get();
+        String documentAndQuery = urlEncode(remoteDocument.getId()) + "?rev=" + remoteDocument.getRev().get();
         HttpURLConnection urc = createConnection(databaseName, documentAndQuery);
         urc.setRequestMethod("DELETE");
         if (HTTP_OK != urc.getResponseCode()) {
@@ -187,6 +189,14 @@ class CouchFunctionsImpl implements CouchFunctions {
             result.append(documentAndQuery);
         }
         return result.toString();
+    }
+
+    private static String urlEncode(String text) {
+        try {
+            return URLEncoder.encode(text, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError("Every implementation of the Java platform is required to support UTF-8.", e);
+        }
     }
 
     private static CouchDatabaseException databaseException(HttpURLConnection urc) throws IOException {

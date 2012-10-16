@@ -35,6 +35,13 @@ class LocalDocument extends Document {
     }
 
     @VisibleForTesting
+    LocalDocument(String rawJson) throws IOException {
+        this.file = null;
+        final JsonParser parser = getJsonFactory().createJsonParser(rawJson);
+        initRootNode(parser);
+    }
+
+    @VisibleForTesting
     File getFile() {
         return file;
     }

@@ -63,7 +63,7 @@ public class CouchFunctionsImplTest {
 
     @Test
     public void playScenario() throws IOException {
-        final String databaseName = "test-database-" + (new SecureRandom()).nextLong();
+        final String databaseName = randomDatabaseName();
         final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
 
         // 0. isExistentDatabase() -> false
@@ -130,10 +130,29 @@ public class CouchFunctionsImplTest {
         impl.deleteDatabase(databaseName);
     }
 
+    /**
+     * Prompted by issue #7, ensure document ID's are URLEncoded before use.
+     */
+    @Test
+    public void shouldUrlEncodeDocumentIds() throws IOException {
+        final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
+        final String databaseName = randomDatabaseName();
+        final String nastyDocumentId = "This % id / will ☠ hurt 切腹 the unprepared!!";
+        final LocalDocument document = new LocalDocument("{ \"_id\": \"" + nastyDocumentId + "\" }");
+
+        try {
+            impl.createDatabase(databaseName);
+            impl.upload(databaseName, document);
+            assertTrue(impl.download(databaseName, nastyDocumentId).isPresent());
+        } finally {
+            impl.deleteDatabase(databaseName);
+        }
+    }
+
     @Test
     public void shouldWrapServerErrors() throws IOException {
         final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
-        final String databaseName = "test-database-" + (new SecureRandom()).nextLong();
+        final String databaseName = randomDatabaseName();
         try {
             impl.createDatabase(databaseName);
             impl.createDatabase(databaseName);
@@ -157,5 +176,9 @@ public class CouchFunctionsImplTest {
             IOUtil.close(fos);
         }
         return result;
+    }
+
+    private String randomDatabaseName() {
+        return "test-database-" + (new SecureRandom()).nextLong();
     }
 }
