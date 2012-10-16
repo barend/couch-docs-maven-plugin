@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.mockito.Matchers.endsWith;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -123,7 +124,7 @@ public class UpdateCouchDocsTest {
 
         new UpdateCouchDocs(config, progress, couchFunctions, docs).execute();
 
-        verify(log).error("Database \"database2\" does not exist.");
+        verify(log).error(endsWith("Database \"database2\" does not exist."));
         verify(couchFunctions).isExistentDatabase("database2");
         verify(couchFunctions).isExistentDatabase("database");
         verify(couchFunctions).download("database", "_design/Demo");
@@ -150,7 +151,7 @@ public class UpdateCouchDocsTest {
             assertNotNull(e);
         }
 
-        verify(log).error("Database \"database\" does not exist.");
+        verify(log).error(endsWith("Database \"database\" does not exist."));
         verify(couchFunctions).isExistentDatabase("database");
         verifyNoMoreInteractions(couchFunctions);
     }
@@ -236,7 +237,7 @@ public class UpdateCouchDocsTest {
             assertNotNull(e);
         }
 
-        verify(log).error("Document \"_design/Demo\" already exists in database \"database\"");
+        verify(log).error(endsWith("Document \"_design/Demo\" already exists in database \"database\""));
         verify(couchFunctions).isExistentDatabase("database");
         verify(couchFunctions).download("database", "_design/Demo");
         verifyNoMoreInteractions(couchFunctions);

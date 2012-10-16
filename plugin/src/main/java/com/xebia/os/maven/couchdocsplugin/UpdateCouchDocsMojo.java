@@ -160,6 +160,7 @@ public class UpdateCouchDocsMojo extends AbstractMojo {
     }
 
     private Multimap<String, LocalDocument> findLocalDocuments() throws MojoExecutionException {
+        getLog().debug("Scanning for Couch documents in " + baseDir.getAbsolutePath());
         final LocalDocumentsSelector docsCollector = new LocalDocumentsSelector(baseDir, getLog(), includes, excludes);
         try {
             return docsCollector.select();

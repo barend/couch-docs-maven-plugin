@@ -27,6 +27,7 @@ class Progress {
 
     private final boolean failOnError;
     private final Log log;
+    private boolean indentation;
 
     public Progress(boolean failOnError, Log log) {
         super();
@@ -34,16 +35,24 @@ class Progress {
         this.log = log;
     }
 
+    public void indent() {
+        indentation = true;
+    }
+
+    public void unindent() {
+        indentation = false;
+    }
+
     public void debug(String content) {
-        log.debug(content);
+        log.debug(indent(content));
     }
 
     public void info(String content) {
-        log.info(content);
+        log.info(indent(content));
     }
 
     public void warn(String content) {
-        log.warn(content);
+        log.warn(indent(content));
     }
 
     public void error(String content) {
@@ -52,12 +61,16 @@ class Progress {
 
     public void error(String content, Throwable error) {
         if (null != error) {
-            log.error(content, error);
+            log.error(indent(content), error);
         } else {
-            log.error(content);
+            log.error(indent(content));
         }
         if (failOnError) {
             throw new RuntimeException(content, error);
         }
+    }
+
+    private String indent(String message) {
+        return indentation ? "    " + message : message;
     }
 }

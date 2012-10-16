@@ -17,8 +17,7 @@ package com.xebia.os.maven.couchdocsplugin;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Set;
-
+import java.util.Map;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
@@ -48,18 +47,21 @@ class UpdateCouchDocs {
     }
 
     public void execute() {
-        final Set<String> databases = localDocuments.keySet();
-        for (final String databaseName : databases) {
-            progress.info("Processing database \"" + databaseName + "\".");
+        for (final Map.Entry<String, Collection<LocalDocument>> database : localDocuments.asMap().entrySet()) {
+            final String databaseName = database.getKey();
+            final Collection<LocalDocument> documents = database.getValue();
+            progress.info("Processing directory \"" + databaseName + "\" with " + documents.size() + " document(s).");
+            progress.indent();
             try {
                 if (ensureDatabaseExists(databaseName)) {
-                    final Collection<LocalDocument> documents = localDocuments.get(databaseName);
                     for (LocalDocument localDocument : documents) {
                         processLocalDesignDocument(databaseName, localDocument);
                     }
                 }
             } catch (IOException e) {
-                progress.error("Could not ensure database " + databaseName + " exists.", e);
+                progress.error("Could not verify whether database " + databaseName + " exists.", e);
+            } finally {
+                progress.unindent();
             }
         }
     }
@@ -74,18 +76,17 @@ class UpdateCouchDocs {
         if (exists) {
             result = true;
         } else {
-            progress.debug("Database \"" + databaseName + "\" is missing from CouchDB.");
             switch (config.unknownDatabases) {
             case FAIL:
                 progress.error("Database \"" + databaseName + "\" does not exist.");
                 result = false;
                 break;
             case SKIP:
-                progress.info("Database \"" + databaseName + "\" does not exist. Skipping.");
+                progress.info("Skipping database \"" + databaseName + "\" because it does not exist on the server.");
                 result = false;
                 break;
             case CREATE:
-                progress.info("Creating database \"" + databaseName + "\" in CouchDB.");
+                progress.info("Creating database \"" + databaseName + "\" on the server.");
                 couchFunctions.createDatabase(databaseName);
                 result = true;
                 break;
@@ -101,7 +102,7 @@ class UpdateCouchDocs {
         try {
             localDocument.load();
             final String documentId = localDocument.getId();
-            progress.info("Processing document \"" + documentId + "\" from \"" + databaseName + '/' + localDocument.getFile().getName() + "\".");
+            progress.debug("Processing document \"" + documentId + "\" from \"" + databaseName + '/' + localDocument.getFile().getName() + "\".");
 
         } catch (IOException e) {
             progress.error("Could not load " + localDocument + ": " + e.toString(), e);
@@ -123,12 +124,14 @@ class UpdateCouchDocs {
 
         try {
             if (remoteDocument.isPresent()) {
+                progress.debug("Document exists on server with revision " + remoteDocument.get().getRev().get() + ".");
                 if (resolveConflict(databaseName, localDocument, remoteDocument.get())) {
-                    progress.info("Uploading document \"" + localDocument.getId() + "\" to database \"" + databaseName + "\".");
+                    progress.info("Uploading document \"" + localDocument.getId() + "\".");
                     couchFunctions.upload(databaseName, localDocument);
                 }
             } else {
-                progress.info("Uploading document \"" + localDocument.getId() + "\" to database \"" + databaseName + "\".");
+                progress.debug("Document does not exist on server.");
+                progress.info("Uploading document \"" + localDocument.getId() + "\".");
                 couchFunctions.upload(databaseName, localDocument);
             }
         } catch (IOException e) {
@@ -146,16 +149,16 @@ class UpdateCouchDocs {
 
         switch (config.existingDocs) {
         case KEEP:
-            progress.info("Keeping existing document \"" + localDocument.getId() + "\" in database \"" + databaseName + "\"");
+            progress.info("Keeping existing document \"" + localDocument.getId() + "\" in database.");
             result = false;
             break;
         case REPLACE:
-            progress.info("Deleting existing document \"" + localDocument.getId() + "\" from database \"" + databaseName + "\"");
+            progress.info("Deleting existing document \"" + localDocument.getId() + "\" from database.");
             couchFunctions.delete(databaseName, remoteDocument);
             result = true;
             break;
         case UPDATE:
-            progress.info("Merging remote revision into local document \"" + localDocument.getId() + "\" from database \"" + databaseName + "\"");
+            progress.info("Merging remote revision into local document \"" + localDocument.getId() + "\".");
             localDocument.setRev(remoteDocument.getRev().get());
             result = true;
             break;
