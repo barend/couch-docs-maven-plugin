@@ -107,6 +107,29 @@ public class CouchFunctionsImplTest {
                 impl.isExistentDatabase(databaseName));
     }
 
+    /**
+     * Proves that {@linkplain https://github.com/xebia/couch-docs-maven-plugin/issues/7} is absent.
+     */
+    @Test
+    public void createDatabaseWithWeirdCharactersInTheName() throws IOException {
+        final String databaseName = "test/da+ta(ba)$_$e-" + (new SecureRandom()).nextLong();
+        final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
+
+        // 0. isExistentDatabase() -> false
+        assertFalse("The database randomly named \"" + databaseName + "\" should not exist at the start of the test.",
+        impl.isExistentDatabase(databaseName));
+
+        // 1. createDatabase().
+        impl.createDatabase(databaseName);
+
+        // 2. isExistentDatabase() -> true
+        assertTrue("The database \"" + databaseName + "\" should have been created and isExistentDatabase() should find it.",
+        impl.isExistentDatabase(databaseName));
+
+        // 3. clean up
+        impl.deleteDatabase(databaseName);
+    }
+
     @Test
     public void shouldWrapServerErrors() throws IOException {
         try {
