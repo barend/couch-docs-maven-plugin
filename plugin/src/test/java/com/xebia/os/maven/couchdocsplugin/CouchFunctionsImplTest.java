@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeNotNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,15 +32,11 @@ import org.codehaus.plexus.util.IOUtil;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import com.google.common.base.Optional;
 import com.xebia.os.maven.couchdocsplugin.CouchDatabaseException;
 import com.xebia.os.maven.couchdocsplugin.CouchFunctionsImpl;
 import com.xebia.os.maven.couchdocsplugin.LocalDocument;
 import com.xebia.os.maven.couchdocsplugin.RemoteDocument;
-import com.xebia.os.maven.couchdocsplugin.junit.ConditionalTestRunner;
-import com.xebia.os.maven.couchdocsplugin.junit.EnvironmentCondition;
-import com.xebia.os.maven.couchdocsplugin.junit.EnvironmentCondition.Kind;
 
 /**
  * Integration test for the {@link CouchFunctionsImpl}.
@@ -52,8 +49,6 @@ import com.xebia.os.maven.couchdocsplugin.junit.EnvironmentCondition.Kind;
  *
  * @author Barend Garvelink <bgarvelink@xebia.com> (https://github.com/barend)
  */
-@RunWith(ConditionalTestRunner.class)
-@EnvironmentCondition(name = "COUCHDB_INTEGRATION_TESTS", kind = Kind.ENVIRONMENT_VARIABLE)
 public class CouchFunctionsImplTest {
 
     private static final String BASE_URL = "http://admin:admin@localhost:5984";
@@ -62,6 +57,8 @@ public class CouchFunctionsImplTest {
 
     @Test
     public void playScenario() throws IOException {
+        assumeNotNull(System.getenv("COUCHDB_INTEGRATION_TESTS"));
+
         final String databaseName = randomDatabaseName();
         final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
 
@@ -111,6 +108,8 @@ public class CouchFunctionsImplTest {
      */
     @Test
     public void createDatabaseWithWeirdCharactersInTheName() throws IOException {
+        assumeNotNull(System.getenv("COUCHDB_INTEGRATION_TESTS"));
+
         final String databaseName = "test/da+ta(ba)$_$e-" + (new SecureRandom()).nextLong();
         final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
 
@@ -134,6 +133,8 @@ public class CouchFunctionsImplTest {
      */
     @Test
     public void shouldUrlEncodeDocumentIds() throws IOException {
+        assumeNotNull(System.getenv("COUCHDB_INTEGRATION_TESTS"));
+
         final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
         final String databaseName = randomDatabaseName();
         final String nastyDocumentId = "This % id / will ☠ hurt 切腹 the unprepared!!";
@@ -150,6 +151,8 @@ public class CouchFunctionsImplTest {
 
     @Test
     public void shouldWrapServerErrors() throws IOException {
+        assumeNotNull(System.getenv("COUCHDB_INTEGRATION_TESTS"));
+
         final CouchFunctionsImpl impl = new CouchFunctionsImpl(BASE_URL);
         final String databaseName = randomDatabaseName();
         try {

@@ -17,6 +17,7 @@ package com.xebia.os.maven.couchdocsplugin;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeNotNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -37,19 +38,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 
 import com.google.common.base.Optional;
 import com.xebia.os.maven.couchdocsplugin.Config;
 import com.xebia.os.maven.couchdocsplugin.CouchFunctionsImpl;
 import com.xebia.os.maven.couchdocsplugin.RemoteDocument;
 import com.xebia.os.maven.couchdocsplugin.UpdateCouchDocsMojo;
-import com.xebia.os.maven.couchdocsplugin.junit.ConditionalTestRunner;
-import com.xebia.os.maven.couchdocsplugin.junit.EnvironmentCondition;
 
 
-@RunWith(ConditionalTestRunner.class)
-@EnvironmentCondition(name = "COUCHDB_INTEGRATION_TESTS", kind = EnvironmentCondition.Kind.ENVIRONMENT_VARIABLE)
 public class UpdateCouchDocsMojoTest {
 
     private static final String COUCH_URL = "http://admin:admin@localhost:5984";
@@ -79,6 +75,7 @@ public class UpdateCouchDocsMojoTest {
 
     @Test
     public void runMojo() throws IOException, MojoExecutionException {
+        assumeNotNull(System.getenv("COUCHDB_INTEGRATION_TESTS"));
         final URL couchUrl = new URL(COUCH_URL);
         final UpdateCouchDocsMojo mojo = new UpdateCouchDocsMojo();
         mojo.setBaseDir(temporaryFolder.getRoot());
