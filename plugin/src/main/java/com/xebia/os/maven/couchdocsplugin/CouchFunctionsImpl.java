@@ -195,7 +195,7 @@ class CouchFunctionsImpl implements CouchFunctions {
         try {
             return URLEncoder.encode(text, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            throw new AssertionError("Every implementation of the Java platform is required to support UTF-8.", e);
+            throw new AssertionError("Every implementation of the Java platform is required to support UTF-8.");
         }
     }
 
