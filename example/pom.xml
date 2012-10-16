@@ -2,7 +2,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.xebia.os.couch-docs-maven-plugin</groupId>
+  <groupId>com.xebia</groupId>
   <artifactId>couch-docs-maven-plugin-example</artifactId>
   <version>0.1-SNAPSHOT</version>
   <!--
@@ -38,7 +38,7 @@
          Invoke with `mvn couch-docs:update`.
 
       -->
-        <groupId>com.xebia.os.couch-docs-maven-plugin</groupId>
+        <groupId>com.xebia</groupId>
         <artifactId>couch-docs-maven-plugin</artifactId>
         <version>0.1-SNAPSHOT</version>
         <configuration>
@@ -75,7 +75,7 @@
 
           -->
           <plugin>
-            <groupId>com.xebia.os.couch-docs-maven-plugin</groupId>
+            <groupId>com.xebia</groupId>
             <artifactId>couch-docs-maven-plugin</artifactId>
             <version>0.1-SNAPSHOT</version>
             <executions>
